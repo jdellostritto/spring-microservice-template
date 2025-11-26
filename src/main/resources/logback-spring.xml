@@ -1,0 +1,115 @@
+<configuration>
+	<property name="LOG_HOME" value="${user.home}/logs/simple-service-java/"/>
+	
+	<!-- Console Appender - Production Grade -->
+	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder charset="UTF-8" class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+				<Pattern>%d{"ISO8601", UTC} [%X{traceId}] [%thread] [%-5level] %logger{5} - %msg%n</Pattern>
+            </layout>
+		</encoder>
+	</appender>
+
+	<!-- Console Appender - Local Development Use Only -->
+	<appender name="consoleLocalUseOnly" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder charset="UTF-8">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss}  %p %t %c %M - %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Async Console Appender - Wraps consoleAppender -->
+	<appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+		<queueSize>512</queueSize>
+		<discardingThreshold>0</discardingThreshold>
+		<appender-ref ref="consoleAppender" />
+	</appender>
+
+	<!-- Daily Rolling File Appender - Development Profile -->
+	<appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<FileNamePattern>${LOG_HOME}/daily/daily.%d{yyyy-MM-dd}.log</FileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>2MB</MaxFileSize>
+		</triggeringPolicy>
+		<encoder charset="UTF-8">
+			<Pattern>%d{"ISO8601", UTC} [%X{traceId}] [%thread] [%-5level] %logger{35} - %msg%n</Pattern>
+		</encoder>
+	</appender>
+
+	<!-- Async File Appender - Wraps dailyRollingFileAppender -->
+	<appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+		<queueSize>512</queueSize>
+		<discardingThreshold>0</discardingThreshold>
+		<appender-ref ref="dailyRollingFileAppender" />
+	</appender>
+
+	<!-- Error File Appender - Separate ERROR logs -->
+	<appender name="errorFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${LOG_HOME}/errors/error.%d{yyyy-MM-dd}.log</FileNamePattern>
+			<!-- keep 90 days of error logs for compliance -->
+			<maxHistory>90</maxHistory>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<MaxFileSize>5MB</MaxFileSize>
+		</triggeringPolicy>
+		<encoder charset="UTF-8">
+			<Pattern>%d{"ISO8601", UTC} [%X{traceId}] [%thread] [%-5level] %logger{35} - %msg%n</Pattern>
+		</encoder>
+	</appender>
+
+	<!-- Async Error File Appender -->
+	<appender name="ASYNC_ERROR_FILE" class="ch.qos.logback.classic.AsyncAppender">
+		<queueSize>512</queueSize>
+		<discardingThreshold>0</discardingThreshold>
+		<appender-ref ref="errorFileAppender" />
+	</appender>
+
+	<!-- Default Profile: Development with file logging and async appenders -->
+	<springProfile name="default">
+		<logger name="com.flipfoundry" additivity="false">
+			<level value="DEBUG" />
+			<appender-ref ref="ASYNC_FILE" />
+			<appender-ref ref="ASYNC_CONSOLE" />
+			<appender-ref ref="ASYNC_ERROR_FILE" />
+		</logger>
+
+		<root level="INFO">
+			<appender-ref ref="ASYNC_FILE" />
+			<appender-ref ref="ASYNC_CONSOLE" />
+			<appender-ref ref="ASYNC_ERROR_FILE" />
+		</root>
+	</springProfile>
+
+	<!-- Test Profile: Console only, no file logging -->
+	<springProfile name="test">
+		<logger name="com.flipfoundry" additivity="false">
+			<level value="INFO" />
+			<appender-ref ref="ASYNC_CONSOLE" />
+		</logger>
+
+		<root level="INFO">
+			<appender-ref ref="ASYNC_CONSOLE" />
+		</root>
+	</springProfile>
+
+	<!-- Deploy Profile: Console only, ERROR level only (cloud-native) -->
+	<springProfile name="deploy">
+		<logger name="com.flipfoundry" additivity="false">
+			<level value="ERROR" />
+			<appender-ref ref="ASYNC_CONSOLE" />
+		</logger>
+
+		<root level="ERROR">
+			<appender-ref ref="ASYNC_CONSOLE" />
+		</root>
+	</springProfile>
+
+</configuration>

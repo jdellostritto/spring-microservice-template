@@ -1,0 +1,31 @@
+# ===============================
+# = Locale en for OpenAPI.
+# ===============================
+openapi:
+  info:
+    # You application title. Required.
+    title: Flip Foundry Tutorial - Greeting and Departing Resource
+    # API version. You can use semantic versioning like 1.0.0,
+    # or an arbitrary string like 0.99-beta. Required.
+    version: 0.0.1-SNAPSHOT
+    # API description. Arbitrary text in CommonMark or HTML.
+    description: "Sample resource APIs. A greeting resource provides a greeting API. The departing resources provides a departing API.
+                 This is a tutorial project for demonstrating API lifecycle, documentation, and implementation."
+
+    # Link to the page that describes the terms of service.
+    # Must be in the URL format.
+    termsOfService: http://example.com/terms/
+
+    # Contact information: name, email, URL.
+    contactName: Developer Portal Support
+    contactEmail: support@example.com
+    contactUrl: http://example.com/support
+
+    # Name of the license and a URL to the license description.
+    licenseName: Apache 2.0
+    licenseUrl: http://www.apache.org/licenses/LICENSE-2.0.html
+
+    # Link to the external documentation (if any).
+    # Code or documentation generation tools can use description as the text of the link.
+    externalDocsDescription: FlipFoundry Java Docs
+    externalDocsUrl: http://example.com/docs

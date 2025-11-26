@@ -1,0 +1,14 @@
+version: '3.4'
+services:
+  app:
+    image: flipfoundry/api-lifecycle-enterprise
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+    ports:
+      - 8700:8700
+      - 9001:9001
+
+    #REQUIRED if running the default profile.
+    #If you log from the container uncomment. Use volume to ensure the container remains immutable.
+    volumes:
+    - ./logs:/usr/app/logs:rw

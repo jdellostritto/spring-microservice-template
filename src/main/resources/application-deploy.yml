@@ -1,0 +1,6 @@
+# ===============================
+# = Spring Doc
+# ===============================
+springdoc:
+  swagger-ui:
+    enabled: false

@@ -1,0 +1,162 @@
+plugins {
+    id 'org.springframework.boot' version '3.5.7'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'java-library'
+    id 'jacoco'
+    id 'com.google.cloud.tools.jib' version '3.4.0'
+    id "org.sonarqube" version "7.1.0.6387"
+}
+group = 'com.jdellostritto.microservice'
+version = '0.0.1-SNAPSHOT'
+java {
+	sourceCompatibility = '21'
+	targetCompatibility = '21'
+}
+
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    /* actuator */
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    /* webflux  */
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    /* Logging  */
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    /* Springdoc  */
+    implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.5.13'
+    implementation 'org.springdoc:springdoc-openapi-webflux-core:1.5.13'
+
+    /* lombok   */
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+     /* Logging */
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    /* test     */
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+
+jib {
+    from {
+        //Orignal Image for local testing.
+        image = "azul/zulu-openjdk-alpine:11"
+
+        //Official base image with a user and group for local testing.
+        //image = "docker://flipfoundry/base-zulu-alpine:11.0.12"
+
+        //Official base image with a user and group for CI pipelines.
+        //image = "flipfoundry/og-zulu-alpine:11.0.12"
+
+    }
+    to {
+        image "jdellostritto/spring-microservice-template"
+    }
+    container {
+        appRoot = '/usr/app'
+        //user = 'appuser' //REQUIRED if using base-zulu-alpine
+        jvmFlags = ['-Xms360m', '-Xmx360m']
+        ports = ['8700','9001']
+        workingDirectory = '/usr/app'
+        volumes = ['/usr/app/logs'] //REQUIRED if running the default profile.
+    }
+    allowInsecureRegistries = false
+}
+
+testing {
+    suites {
+        test {
+            useJUnitJupiter()
+
+        }
+        integrationTest(JvmTestSuite) {
+            dependencies {
+                implementation project()
+                /* webflux  */
+                implementation 'org.springframework.boot:spring-boot-starter-webflux'
+                implementation 'org.springframework.boot:spring-boot-starter-test'
+            }
+        }
+    }
+}
+test {
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    dependsOn test// tests are required to run before generating the report
+    reports {
+        xml.required = true
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+
+    }
+}
+
+sonarqube {
+    properties {
+        // SonarQube server configuration
+        //property 'sonar.host.url', 'http://localhost:9000'
+        //property 'sonar.login', 'your-auth-token'
+        
+        // Project identification
+        property "sonar.projectKey", "jdellostritto_spring-microservice-template"
+        property 'sonar.projectName', 'Spring Microservice Template'
+        property "sonar.organization", "jdellostritto"
+        
+        // Source encoding
+        property 'sonar.sourceEncoding', 'UTF-8'
+        
+        // Java version
+        property 'sonar.java.source', '21'
+        property 'sonar.java.target', '21'
+        
+        // Test results
+        property 'sonar.junit.reportPaths', 'build/test-results/test/*.xml'
+        
+        // Code coverage with JaCoCo
+        property 'sonar.java.coveragePlugin', 'jacoco'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
+        
+        // Exclusions (optional)
+        //property 'sonar.exclusions', '**/config/**,**/dto/**'
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks['sonarqube'].dependsOn test
+
+// This adds HARNESS_JAVA_AGENT to the testing command if it's
+// provided through the command line.
+// Local builds will still remain same as it only adds if the
+// parameter is provided.
+tasks.withType(Test) {
+  if(System.getProperty("HARNESS_JAVA_AGENT")) {
+    jvmArgs += [System.getProperty("HARNESS_JAVA_AGENT")]
+  }
+}
+
+// This makes sure that any test tasks for subprojects don't
+// fail in case the test filter does not match.
+gradle.projectsEvaluated {
+        tasks.withType(Test) {
+            filter {
+                setFailOnNoMatchingTests(false)
+            }
+        }
+}
