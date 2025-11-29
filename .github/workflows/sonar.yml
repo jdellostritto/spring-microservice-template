@@ -28,11 +28,19 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonarqube -Dsonar.token=$SONAR_TOKEN
       
-      - name: SonarQube Quality Gate
+      - name: Publish SonarQube Analysis Summary
         if: always()
         run: |
-          echo "SonarQube analysis completed"
-          echo "Project Key: jdellostritto_spring-microservice-template"
+          echo "## 📊 SonarQube Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ SonarQube analysis completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Full Analysis on SonarQube](https://sonarcloud.io/dashboard?id=jdellostritto_spring-microservice-template)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Project Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Project Key:** jdellostritto_spring-microservice-template" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
       
       - name: Upload Build Reports
         if: always()
