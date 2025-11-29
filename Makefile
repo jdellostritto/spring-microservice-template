@@ -40,7 +40,7 @@ bootrun:
 	$(GRADLEW) bootRun
 
 dockerbuild:
-	$(GRADLEW) jibDockerBuild
+	$(GRADLEW) jibDockerBuild --no-configuration-cache
 
 #Used with github actions CI
 image:
