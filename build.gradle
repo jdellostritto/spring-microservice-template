@@ -64,7 +64,8 @@ jib {
 
     }
     to {
-        image "jdellostritto/spring-microservice-template"
+        image = "ghcr.io/jdellostritto/spring-microservice-template"
+        tags = ["latest", "master"]
     }
     container {
         appRoot = '/usr/app'
