@@ -20,15 +20,14 @@
     - `SONAR_HOST_URL` - Your SonarQube server URL (optional)
   - Uploads build reports as artifacts
 
-### 3. **docker.yml** - Docker Build and Push
+### 3. **docker.yml** - Docker Build and Push to GHCR
 - **Trigger:** Push to `master` branch (manual dispatch available)
 - **Actions:**
-  - Build Docker image using Jib
-  - Login to Docker Hub
-  - Push to Docker Hub with `latest` and SHA tags
-  - Requires GitHub Secrets:
-    - `DOCKERHUB_USERNAME` - Your Docker Hub username
-    - `DOCKERHUB_TOKEN` - Your Docker Hub access token
+  - Build Docker image using Docker build-push-action
+  - Push to GitHub Container Registry (GHCR)
+  - Tags: `latest`, `master`, and `sha-<commit-hash>`
+  - **No secrets required** - uses built-in `GITHUB_TOKEN`
+- **Image URL:** `ghcr.io/jdellostritto/spring-microservice-template:latest`
 
 ## GitHub Secrets to Configure
 
@@ -37,9 +36,9 @@ Add the following secrets to your repository (Settings → Secrets and variables
 ```
 SONAR_TOKEN=your_sonarqube_token_here
 SONAR_HOST_URL=http://localhost:9000  (if not using SonarCloud)
-DOCKERHUB_USERNAME=jdellostritto
-DOCKERHUB_TOKEN=your_dockerhub_token_here
 ```
+
+**Docker Registry:** No secrets required for GHCR - uses built-in `GITHUB_TOKEN`
 
 ## Next Steps
 
@@ -47,10 +46,12 @@ DOCKERHUB_TOKEN=your_dockerhub_token_here
    - Obtain your SonarQube token from your SonarQube instance
    - Add `SONAR_TOKEN` to GitHub Secrets
 
-2. **Docker Hub Integration (Optional):**
-   - Generate a Docker Hub access token
-   - Add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` to GitHub Secrets
+2. **Docker Images:**
+   - Images are automatically built and pushed to GHCR
+   - No configuration needed - uses GitHub's built-in token
+   - Access images at: `ghcr.io/jdellostritto/spring-microservice-template:latest`
 
 3. **Verify Workflows:**
    - Push a commit to `master` or create a PR
    - Navigate to Actions tab to monitor workflow execution
+   - Docker images will be available in your GitHub Packages
