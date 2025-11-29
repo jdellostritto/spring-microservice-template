@@ -1,6 +1,12 @@
 HELP.md
 .gradle
-gradle/
+# Track gradle wrapper
+!gradle/
+!gradle/wrapper/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+# But ignore other gradle files
+gradle/**
 !gradle/wrapper/
 !gradle/wrapper/gradle-wrapper.jar
 !gradle/wrapper/gradle-wrapper.properties
