@@ -28,6 +28,18 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonarqube -Dsonar.token=$SONAR_TOKEN
       
+      - name: Post SonarCloud Link to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔗 **SonarCloud Analysis Available**\n\n[View Full Analysis on SonarCloud](https://sonarcloud.io/dashboard?id=jdellostritto_spring-microservice-template)\n\n**Project Key:** `jdellostritto_spring-microservice-template`'
+            })
+      
       - name: Publish SonarQube Analysis Summary
         if: always()
         run: |
