@@ -53,14 +53,14 @@ dependencies {
 
 jib {
     from {
-        //Orignal Image for local testing.
-        image = "azul/zulu-openjdk-alpine:11"
+        //Option 1: Alpine base image from GHCR (lightweight, recommended for production)
+        image = "ghcr.io/jdellostritto/docker-jdk-base/jdk-alpine:latest"
 
-        //Official base image with a user and group for local testing.
-        //image = "docker://flipfoundry/base-zulu-alpine:11.0.12"
+        //Option 2: Ubuntu base image from GHCR (broader package availability)
+        //image = "ghcr.io/jdellostritto/docker-jdk-base/jdk-ubuntu:latest"
 
-        //Official base image with a user and group for CI pipelines.
-        //image = "flipfoundry/og-zulu-alpine:11.0.12"
+        //Option 3: Local testing with Azul Zulu from Docker Hub
+        //image = "azul/zulu-openjdk-alpine:11"
 
     }
     to {

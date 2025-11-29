@@ -35,16 +35,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:master
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+      - name: Build Docker image with Jib (using GHCR base image)
+        run: ./gradlew jibDockerBuild
+      
+      - name: Push Docker image to GHCR
+        run: |
+          docker tag ghcr.io/jdellostritto/spring-microservice-template:latest ghcr.io/jdellostritto/spring-microservice-template:${{ github.sha }}
+          docker push ghcr.io/jdellostritto/spring-microservice-template:latest
+          docker push ghcr.io/jdellostritto/spring-microservice-template:${{ github.sha }}
+          docker push ghcr.io/jdellostritto/spring-microservice-template:master
+          
+      - name: Verify image in GHCR
+        run: |
+          echo "Image pushed to GHCR:"
+          echo "  - ghcr.io/jdellostritto/spring-microservice-template:latest"
+          echo "  - ghcr.io/jdellostritto/spring-microservice-template:master"
+          echo "  - ghcr.io/jdellostritto/spring-microservice-template:${{ github.sha }}"
