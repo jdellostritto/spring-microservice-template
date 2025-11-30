@@ -58,7 +58,7 @@ delete:
 
 # Run Static code analysis
 sonar:
-	$(GRADLEW) build sonar
+	$(GRADLEW) build sonar --no-configuration-cache
 
 
 # KUBERNETES *NIX/BASH RUN.
