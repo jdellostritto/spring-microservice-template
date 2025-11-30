@@ -33,22 +33,49 @@ jobs:
           ./gradlew bootRun --no-daemon &
           APP_PID=$!
           
-          # Wait for app to start
-          sleep 10
-          
           # Create output directory
           mkdir -p docs
           
+          # Wait for application to start and be ready
+          echo "⏳ Waiting for application to start on port 8700..."
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:8700/actuator | grep -q "200"; then
+              echo "✅ Application is ready!"
+              break
+            fi
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS - waiting for application..."
+            sleep 2
+          done
+          
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "❌ Application failed to start within expected time"
+            kill $APP_PID || true
+            exit 1
+          fi
+          
           # Fetch and save the OpenAPI spec (application runs on port 8700)
-          if curl -s http://localhost:8700/v3/api-docs.yaml -o docs/openapi.yaml; then
-            echo "✅ OpenAPI spec generated successfully"
-            echo "📄 Spec location: docs/openapi.yaml"
+          echo "📥 Fetching OpenAPI spec from http://localhost:8700/v3/api-docs.yaml..."
+          if curl -v -s http://localhost:8700/v3/api-docs.yaml -o docs/openapi.yaml; then
+            if [ -s docs/openapi.yaml ]; then
+              echo "✅ OpenAPI spec generated successfully"
+              echo "📄 Spec size: $(wc -c < docs/openapi.yaml) bytes"
+              echo "📄 First 50 lines:"
+              head -50 docs/openapi.yaml
+            else
+              echo "❌ OpenAPI spec file is empty"
+              exit 1
+            fi
           else
-            echo "❌ Failed to generate OpenAPI spec"
+            echo "❌ Failed to fetch OpenAPI spec"
             exit 1
           fi
           
           # Kill the background application
+          echo "🛑 Stopping application..."
           kill $APP_PID || true
           wait $APP_PID 2>/dev/null || true
 
