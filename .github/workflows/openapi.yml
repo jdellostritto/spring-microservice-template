@@ -39,8 +39,8 @@ jobs:
           # Create output directory
           mkdir -p docs
           
-          # Fetch and save the OpenAPI spec
-          if curl -s http://localhost:8080/v3/api-docs.yaml -o docs/openapi.yaml; then
+          # Fetch and save the OpenAPI spec (application runs on port 8700)
+          if curl -s http://localhost:8700/v3/api-docs.yaml -o docs/openapi.yaml; then
             echo "✅ OpenAPI spec generated successfully"
             echo "📄 Spec location: docs/openapi.yaml"
           else
