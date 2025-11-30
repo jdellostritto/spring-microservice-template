@@ -25,7 +25,13 @@ jobs:
       - name: Build and Run SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonar --no-configuration-cache -Dsonar.token=$SONAR_TOKEN
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "⚠️  SONAR_TOKEN not set. Skipping SonarQube analysis."
+            ./gradlew build --no-configuration-cache
+          else
+            ./gradlew build sonar --no-configuration-cache -Dsonar.token=$SONAR_TOKEN
+          fi
       
       - name: Post SonarCloud Link to PR
         if: github.event_name == 'pull_request'
