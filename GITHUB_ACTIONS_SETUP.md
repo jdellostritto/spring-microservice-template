@@ -13,7 +13,6 @@ The project provides the following Make targets (work on both local development 
 - **`make test-report`** - Generate test results summary for GitHub job summary
 - **`make sonar`** - Build and run SonarQube/SonarCloud analysis (with token check)
 - **`make javadoc`** - Generate Javadoc HTML documentation
-- **`make openapi`** - Build project and generate OpenAPI specification
 - **`make dbuild_local`** - Build Docker image locally to Docker daemon
 - **`make dbuild_registry`** - Build and push Docker image to registry (GHCR, DockerHub, etc.)
 
@@ -73,24 +72,8 @@ The project provides the following Make targets (work on both local development 
   - Publish to `/docs` directory for GitHub Pages
   - Avoid infinite loops by detecting github-actions[bot] commits
 - **Output:**
-  - HTML documentation at `docs/javadoc/index.html`
+  - HTML documentation at `https://yourusername.github.io/spring-microservice-template/`
   - Includes class hierarchies, method documentation, cross-references
-
-### 5. **openapi.yml** - Generate & Publish OpenAPI Spec
-
-- **Trigger:** Push to `master`/`develop`, manual dispatch (workflow_dispatch)
-- **Actions:**
-  - Build project without tests
-  - Start application and fetch OpenAPI specification
-  - Publish spec to `/docs/openapi.yaml`
-  - Avoid infinite loops by detecting github-actions[bot] commits
-- **Output:**
-  - OpenAPI specification file at `docs/openapi.yaml`
-  - Viewable via Swagger UI at `docs/api.html`
-  - **No secrets required** - uses built-in `GITHUB_TOKEN`
-- **Publishing:**
-  - Automatically publishes to GitHub Pages
-  - Accessible at: `https://yourusername.github.io/spring-microservice-template/api.html`
 
 ## GitHub Secrets Configuration
 
@@ -122,8 +105,7 @@ make build
 make test
 
 # Generate documentation
-make javadoc        # Generate Javadoc HTML docs
-make openapi        # Generate OpenAPI specification
+make javadoc        # Generate Javadoc HTML docs (published to GitHub Pages)
 
 # Run SonarQube analysis locally (requires SONAR_TOKEN in .env)
 make sonar
@@ -138,6 +120,14 @@ DOCKER_USERNAME=username \
 DOCKER_PASSWORD=token \
 make dbuild_registry
 ```
+
+### API Documentation
+
+The application provides interactive Swagger UI at runtime. To view API documentation:
+
+1. **Start the application:** `./gradlew bootRun`
+2. **Access Swagger UI:** `http://localhost:8700/test/index.html`
+3. **Fetch OpenAPI spec:** `http://localhost:8700/v3/api-docs` (JSON) or `http://localhost:8700/v3/api-docs?format=yaml` (YAML)
 
 ### Local Environment File
 
