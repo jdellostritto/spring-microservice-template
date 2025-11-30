@@ -1,4 +1,4 @@
-.PHONY: build test clean check stop bootrun dockerbuild docker-push-ghcr image run down delete kube-apply kube-delete prune sonar test-report
+.PHONY: build test clean check stop bootrun dockerbuild docker-push run down delete kube-apply kube-delete prune sonar test-report
 
 # Load environment variables from .env file if it exists
 -include .env
@@ -14,6 +14,13 @@ PROJECT ?= spring-microservice-template
 
 IMAGE ?= jdellostritto/$(PROJECT)
 BUILD ?= latest
+
+# Docker registry configuration (can be overridden by GitHub Actions or environment)
+# Examples: ghcr.io/jdellostritto/spring-microservice-template, jdellostritto/spring-microservice-template, etc.
+DOCKER_REGISTRY_IMAGE ?= $(IMAGE)
+DOCKER_TAG ?= $(BUILD)
+DOCKER_USERNAME ?= $(DOCKER_USER)
+DOCKER_PASSWORD ?= $(DOCKER_ACCESS_TOKEN)
 
 COMPOSE ?= $(DOCKER_COMPOSE) $(RUN_CONFIG)
 DOCKER_COMPOSE ?= docker-compose
@@ -57,13 +64,15 @@ bootrun:
 dockerbuild:
 	$(GRADLEW) jibDockerBuild --no-configuration-cache
 
-# Build and push Docker image to GHCR (used in GitHub Actions)
-docker-push-ghcr:
-	$(GRADLEW) jib --no-configuration-cache -Djib.to.image=ghcr.io/jdellostritto/$(PROJECT) -Djib.to.tags=${TAG} -Djib.to.auth.username=${DOCKER_USER} -Djib.to.auth.password=${DOCKER_ACCESS_TOKEN}
-
-# Legacy target for backward compatibility
-image:
-	$(GRADLEW) jib --no-configuration-cache -Djib.to.tags=${TAG} -Djib.to.auth.username=${DOCKER_USER} -Djib.to.auth.password=${DOCKER_ACCESS_TOKEN}
+# Generic target to build and push Docker image to any registry
+# Usage: make docker-push DOCKER_REGISTRY_IMAGE=ghcr.io/user/image DOCKER_TAG=latest DOCKER_USERNAME=user DOCKER_PASSWORD=token
+# Or set environment variables and call: make docker-push
+docker-push:
+	$(GRADLEW) jib --no-configuration-cache \
+		-Djib.to.image=$(DOCKER_REGISTRY_IMAGE) \
+		-Djib.to.tags=$(DOCKER_TAG) \
+		-Djib.to.auth.username=$(DOCKER_USERNAME) \
+		-Djib.to.auth.password=$(DOCKER_PASSWORD)
 
 run:
 	$(COMPOSE) $(LOCAL_CONFIG) up
