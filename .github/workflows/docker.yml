@@ -37,10 +37,11 @@ jobs:
       
       - name: Build and Push Docker image to GHCR
         env:
-          TAG: latest,master,${{ github.sha }}
-          DOCKER_USER: ${{ github.actor }}
-          DOCKER_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make docker-push-ghcr
+          DOCKER_REGISTRY_IMAGE: ghcr.io/jdellostritto/spring-microservice-template
+          DOCKER_TAG: latest,master,${{ github.sha }}
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: make dbuild_registry
           
       - name: Verify image in GHCR
         run: |

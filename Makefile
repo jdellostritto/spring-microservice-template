@@ -1,4 +1,4 @@
-.PHONY: build test clean check stop bootrun dockerbuild docker-push run down delete kube-apply kube-delete prune sonar test-report
+.PHONY: build test clean check stop bootrun dbuild_local dbuild_registry run down delete kube-apply kube-delete prune sonar test-report
 
 # Load environment variables from .env file if it exists
 -include .env
@@ -61,13 +61,13 @@ bootrun:
 	$(GRADLEW) bootRun
 
 # Build Docker image locally to Docker daemon
-dockerbuild:
+dbuild_local:
 	$(GRADLEW) jibDockerBuild --no-configuration-cache
 
 # Generic target to build and push Docker image to any registry
 # Usage: make docker-push DOCKER_REGISTRY_IMAGE=ghcr.io/user/image DOCKER_TAG=latest DOCKER_USERNAME=user DOCKER_PASSWORD=token
 # Or set environment variables and call: make docker-push
-docker-push:
+dbuild_registry:
 	$(GRADLEW) jib --no-configuration-cache \
 		-Djib.to.image=$(DOCKER_REGISTRY_IMAGE) \
 		-Djib.to.tags=$(DOCKER_TAG) \
