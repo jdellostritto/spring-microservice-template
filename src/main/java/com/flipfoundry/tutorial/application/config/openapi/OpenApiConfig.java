@@ -15,19 +15,16 @@ import org.springframework.context.annotation.Configuration;
 import static java.util.Objects.requireNonNull;
 
 /**
- * 2025 FlipFoundry
- * Class: OpenApiConfig.java
- *
- * @implSpec `<p>This is the Swagger Configuration. This class pulls the
- * the configuration from the OpenApiProps.java class which in turns pulls
- * strings from a language specific property file. This class is not instantiated
- * if not enabled by springdoc.swagger-ui.enabled. For production instances we
- * likely do not want swagger activated.`</p>
+ * Swagger Configuration for OpenAPI documentation.
+ * 
+ * <p>This class pulls configuration from the OpenApiProps class which in turn
+ * pulls strings from a language-specific property file. This class is not 
+ * instantiated if not enabled by springdoc.swagger-ui.enabled. For production 
+ * instances, we likely do not want swagger activated.</p>
  *
  * @author  <a href="mailto:jim.dellostritto@gmail.com">Jim DelloStritto</a>
  * @version 1.0
- *
- * @implNote Last modified by Jim DelloStritto on 2025-04-05
+ * @since 2025-04-05
  */
 @Configuration
 @ConditionalOnProperty(value = "springdoc.swagger-ui.enabled", matchIfMissing = false)

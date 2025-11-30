@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  *  <li>A content field
  * </ul>
  *
- * @deprecated As of release 1.1, Moved to {@link #(GreetingDTOV2) }
+ * @deprecated As of release 1.1, moved to {@link GreetingDTOV2}
  * @author  <a href="mailto:jim.dellostritto@gmail.comm">Jim DelloStritto</a>
  * @version 1.1
  *

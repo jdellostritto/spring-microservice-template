@@ -12,17 +12,15 @@ import com.flipfoundry.tutorial.application.utils.YamlPropertySourceFactory;
 
 
 /**
- * 2025 FlipFoundry.
- * Class: OpenApiProps.java
- *
- * @implSpec `<p>This class is conditional and only used if the swagger-ui is enabled.
- *            the property file loaded is based on the `spring.profiles.locale`.
- *            The class leverages lombok @data annotation to provide getters setters etc.</p>
+ * OpenAPI Properties Configuration.
+ * 
+ * <p>This class is conditional and only used if swagger-ui is enabled.
+ * The property file loaded is based on the {@code spring.profiles.locale}.
+ * The class leverages Lombok @Data annotation to provide getters, setters, etc.</p>
  *
  * @author  <a href="mailto:jim.dellostritto@gmail.com">Jim DelloStritto</a>
  * @version 1.0
- *
- * @implNote Last modified by Jim DelloStritto on 2025-04-05
+ * @since 2025-04-05
  */
 @Configuration
 @ConditionalOnProperty(value = "springdoc.swagger-ui.enabled", matchIfMissing = false)

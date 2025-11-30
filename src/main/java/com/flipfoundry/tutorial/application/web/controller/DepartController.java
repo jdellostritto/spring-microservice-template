@@ -24,6 +24,12 @@ import java.util.Date;
 public class DepartController {
 
     /**
+     * Default constructor for DepartController.
+     */
+    public DepartController() {
+    }
+
+    /**
      * <p>Depart endpoint. Returns departure information with timestamp.</p>
      *
      * @return mono The Depart DTO.

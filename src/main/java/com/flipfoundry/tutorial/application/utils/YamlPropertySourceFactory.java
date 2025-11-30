@@ -8,18 +8,15 @@ import org.springframework.core.io.support.PropertySourceFactory;
 
 import java.io.IOException;
 /**
- * 
- * 2025 FlipFoundry.
+ * YAML Property Source Factory.
  *
- * Class:      YamlPropertySourceFactory.java<br>
- * References: `https://www.baeldung.com/spring-yaml-propertysource`<br><br>
+ * <p>An add-on to allow properties to be pulled from an independent YAML file.</p>
  *
- * @implSpec `An add-on to allow properties to be pulled form an independent yaml file.`<br>
+ * <p>References: <a href="https://www.baeldung.com/spring-yaml-propertysource">Baeldung - Spring YAML PropertySource</a></p>
  *
  * @author <a href="mailto:jim.dellostritto@gmail.com">Jim DelloStritto</a>
  * @version 1.0
- * @implNote Last modified by Jim DelloStritto on 2025-04-05
- *
+ * @since 2025-04-05
  */
 public class YamlPropertySourceFactory implements PropertySourceFactory {
 
