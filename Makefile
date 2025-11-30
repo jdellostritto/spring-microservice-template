@@ -58,7 +58,12 @@ delete:
 
 # Run Static code analysis
 sonar:
-	$(GRADLEW) build sonar --no-configuration-cache
+	@if [ -z "$(SONAR_TOKEN)" ]; then \
+		echo "⚠️  SONAR_TOKEN not set. Skipping SonarQube analysis."; \
+		$(GRADLEW) build --no-configuration-cache; \
+	else \
+		$(GRADLEW) build sonar --no-configuration-cache -Dsonar.token=$(SONAR_TOKEN); \
+	fi
 
 
 # KUBERNETES *NIX/BASH RUN.
