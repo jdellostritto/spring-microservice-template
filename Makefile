@@ -1,4 +1,4 @@
-.PHONY: build test clean check stop bootrun dockerbuild image run down delete kube-apply kube-delete prune sonar
+.PHONY: build test clean check stop bootrun dockerbuild image run down delete kube-apply kube-delete prune sonar test-report
 
 # Load environment variables from .env file if it exists
 -include .env
@@ -26,6 +26,19 @@ build:
 
 test: build
 	$(GRADLEW) test
+
+test-report:
+	@echo "## 📊 Test Results" >> $(GITHUB_STEP_SUMMARY)
+	@echo "" >> $(GITHUB_STEP_SUMMARY)
+	@if [ -f "build/test-results/test/TEST-*.xml" ]; then \
+		echo "✅ Tests completed successfully" >> $(GITHUB_STEP_SUMMARY); \
+		echo "" >> $(GITHUB_STEP_SUMMARY); \
+		echo "📈 Test reports available in artifacts:" >> $(GITHUB_STEP_SUMMARY); \
+		echo "- JaCoCo Coverage Report" >> $(GITHUB_STEP_SUMMARY); \
+		echo "- Detailed Test Report" >> $(GITHUB_STEP_SUMMARY); \
+	else \
+		echo "⚠️ No test results found" >> $(GITHUB_STEP_SUMMARY); \
+	fi
 
 clean:
 	$(GRADLEW) clean

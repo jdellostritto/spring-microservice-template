@@ -23,7 +23,10 @@ jobs:
           cache: gradle
       
       - name: Build with Gradle
-        run: ./gradlew build
+        run: make build
+      
+      - name: Run Tests
+        run: make test
       
       - name: Upload JaCoCo Coverage Reports
         if: always()
@@ -41,15 +44,4 @@ jobs:
       
       - name: Publish Test Results Summary
         if: always()
-        run: |
-          echo "## 📊 Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -f "build/test-results/test/TEST-*.xml" ]; then
-            echo "✅ Tests completed successfully" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "📈 Test reports available in artifacts:" >> $GITHUB_STEP_SUMMARY
-            echo "- [JaCoCo Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
-            echo "- [Detailed Test Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ No test results found" >> $GITHUB_STEP_SUMMARY
-          fi
+        run: make test-report
