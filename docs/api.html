@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spring Microservice Template - API Documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui.css">
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    body {
+      margin: 0;
+      background: #fafafa;
+      font-family: sans-serif;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+    }
+    .header p {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .api-info {
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 20px;
+      margin: 0 20px 20px 20px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .api-info h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      color: #333;
+    }
+    .api-info p {
+      margin: 5px 0;
+      color: #666;
+      font-size: 14px;
+    }
+    .api-info a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    .api-info a:hover {
+      text-decoration: underline;
+    }
+    #swagger-ui {
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🚀 Spring Microservice Template</h1>
+    <p>API Documentation</p>
+  </div>
+
+  <div class="api-info">
+    <h2>OpenAPI Specification</h2>
+    <p><strong>Service:</strong> Spring Microservice Template API</p>
+    <p><strong>Version:</strong> 0.0.1-SNAPSHOT</p>
+    <p><strong>Spec File:</strong> <a href="./openapi.yaml" target="_blank">openapi.yaml</a></p>
+    <p><strong>Runtime Endpoint:</strong> <code>http://localhost:8080/v3/api-docs</code> (JSON) or <code>http://localhost:8080/v3/api-docs.yaml</code> (YAML)</p>
+    <p><strong>Swagger UI:</strong> <code>http://localhost:8080/swagger-ui.html</code> (when app is running)</p>
+  </div>
+
+  <div id="swagger-ui"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
+  <script>
+    const ui = SwaggerUIBundle({
+      url: "./openapi.yaml",
+      dom_id: '#swagger-ui',
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+      ],
+      layout: "StandaloneLayout",
+      tryItOutEnabled: false, // Disable "Try it out" since this is a static page
+      onComplete: function() {
+        console.log("✅ Swagger UI loaded successfully");
+      },
+      onFailure: function(data) {
+        console.error("❌ Failed to load OpenAPI spec:", data);
+        document.getElementById('swagger-ui').innerHTML = 
+          '<div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 4px;">' +
+          '<strong>⚠️ Note:</strong> OpenAPI specification file not found. ' +
+          'Run <code>make openapi</code> to generate it, or ensure the spec is published to this directory.' +
+          '</div>';
+      }
+    });
+  </script>
+</body>
+</html>

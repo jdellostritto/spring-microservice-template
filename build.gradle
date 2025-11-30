@@ -168,3 +168,33 @@ javadoc {
 		charSet = 'UTF-8'
 	}
 }
+
+// OpenAPI Specification generation
+task resolveOpenApi {
+	description = 'Generate OpenAPI specification in YAML format'
+	doLast {
+		// Start the application briefly to generate the OpenAPI spec
+		def process = ["${System.getProperty('java.home')}/bin/java",
+			'-jar', tasks.bootJar.outputs.files.singleFile.absolutePath,
+			'--server.port=0'].execute()
+		
+		Thread.sleep(5000) // Wait for app to start
+		
+		try {
+			// Try to fetch the OpenAPI spec
+			new URL('http://localhost:8080/v3/api-docs.yaml')
+				.withInputStream { inputStream ->
+					def outputDir = new File("${buildDir}/openapi")
+					outputDir.mkdirs()
+					new File(outputDir, 'openapi.yaml').withOutputStream { outputStream ->
+						outputStream << inputStream
+					}
+				}
+			println "✅ OpenAPI spec generated: ${buildDir}/openapi/openapi.yaml"
+		} catch (Exception e) {
+			println "⚠️  Could not fetch OpenAPI spec: ${e.message}"
+		} finally {
+			process.destroy()
+		}
+	}
+}

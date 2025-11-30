@@ -12,12 +12,15 @@ The project provides the following Make targets (work on both local development 
 - **`make test`** - Build and run tests
 - **`make test-report`** - Generate test results summary for GitHub job summary
 - **`make sonar`** - Build and run SonarQube/SonarCloud analysis (with token check)
+- **`make javadoc`** - Generate Javadoc HTML documentation
+- **`make openapi`** - Build project and generate OpenAPI specification
 - **`make dbuild_local`** - Build Docker image locally to Docker daemon
 - **`make dbuild_registry`** - Build and push Docker image to registry (GHCR, DockerHub, etc.)
 
 ## Workflows Configured
 
 ### 1. **build.yml** - Build and Test
+
 - **Trigger:** Push to `master`/`develop`, Pull Requests
 - **Make targets used:**
   - `make build` - Compile and build
@@ -31,6 +34,7 @@ The project provides the following Make targets (work on both local development 
   - Publish test results summary in GitHub job summary
 
 ### 2. **sonar.yml** - SonarQube/SonarCloud Analysis
+
 - **Trigger:** Push to `master`/`develop`, Pull Requests
 - **Environment:** Requires `BUILDS` environment configured in GitHub
 - **Make target used:**
@@ -47,6 +51,7 @@ The project provides the following Make targets (work on both local development 
   - `SONAR_TOKEN` - Your SonarCloud authentication token
 
 ### 3. **docker.yml** - Docker Build and Push to GHCR
+
 - **Trigger:** Push to `master` branch, manual dispatch (workflow_dispatch)
 - **Make target used:**
   - `make dbuild_registry` - Build and push to registry
@@ -60,6 +65,33 @@ The project provides the following Make targets (work on both local development 
   - Registry image, tags, and credentials passed via environment variables
 - **Image URL:** `ghcr.io/jdellostritto/spring-microservice-template:latest`
 
+### 4. **javadoc.yml** - Build & Publish Javadocs
+
+- **Trigger:** Push to `master`/`develop`, manual dispatch (workflow_dispatch)
+- **Actions:**
+  - Generate Javadoc HTML documentation
+  - Publish to `/docs` directory for GitHub Pages
+  - Avoid infinite loops by detecting github-actions[bot] commits
+- **Output:**
+  - HTML documentation at `docs/javadoc/index.html`
+  - Includes class hierarchies, method documentation, cross-references
+
+### 5. **openapi.yml** - Generate & Publish OpenAPI Spec
+
+- **Trigger:** Push to `master`/`develop`, manual dispatch (workflow_dispatch)
+- **Actions:**
+  - Build project without tests
+  - Start application and fetch OpenAPI specification
+  - Publish spec to `/docs/openapi.yaml`
+  - Avoid infinite loops by detecting github-actions[bot] commits
+- **Output:**
+  - OpenAPI specification file at `docs/openapi.yaml`
+  - Viewable via Swagger UI at `docs/api.html`
+  - **No secrets required** - uses built-in `GITHUB_TOKEN`
+- **Publishing:**
+  - Automatically publishes to GitHub Pages
+  - Accessible at: `https://yourusername.github.io/spring-microservice-template/api.html`
+
 ## GitHub Secrets Configuration
 
 ### Required Secrets
@@ -67,12 +99,15 @@ The project provides the following Make targets (work on both local development 
 Add the following secrets to your repository (Settings → Secrets and variables → Actions):
 
 **Repository-level secrets:**
+
 - None required for basic CI/CD
 
 **Environment secrets (in `BUILDS` environment):**
+
 - `SONAR_TOKEN` - Your SonarCloud authentication token
 
 To configure:
+
 1. Go to Settings → Environments → Create environment → `BUILDS`
 2. Add environment secret `SONAR_TOKEN` with your SonarCloud token
 3. Optionally add deployment branch restrictions for added security
@@ -85,6 +120,10 @@ To configure:
 # Build and test
 make build
 make test
+
+# Generate documentation
+make javadoc        # Generate Javadoc HTML docs
+make openapi        # Generate OpenAPI specification
 
 # Run SonarQube analysis locally (requires SONAR_TOKEN in .env)
 make sonar
@@ -103,6 +142,7 @@ make dbuild_registry
 ### Local Environment File
 
 Create `.env` file in project root with:
+
 ```
 SONAR_TOKEN=your_sonarcloud_token
 ```
@@ -115,12 +155,20 @@ SONAR_TOKEN=your_sonarcloud_token
    - Generate an authentication token
    - Create a `BUILDS` environment in GitHub with the `SONAR_TOKEN` secret
 
-2. **Docker Registry (GHCR):**
+3. **Docker Registry (GHCR):**
    - No configuration needed - uses GitHub's built-in `GITHUB_TOKEN`
    - Ensure workflow has `packages: write` permission (already configured)
    - Images automatically available at `ghcr.io/jdellostritto/spring-microservice-template`
 
-3. **Verify Workflows:**
+4. **GitHub Pages for Documentation:**
+   - Enable GitHub Pages in repository Settings → Pages
+   - Select "Deploy from a branch" 
+   - Branch: `master`, Folder: `/ (root)` or `docs`
+   - Pages will be published at: `https://yourusername.github.io/spring-microservice-template/`
+   - Access API documentation at: `https://yourusername.github.io/spring-microservice-template/api.html`
+   - Access Javadocs at: `https://yourusername.github.io/spring-microservice-template/javadoc/`
+
+5. **Verify Workflows:**
    - Push a commit to `master` or create a PR
    - Navigate to Actions tab to monitor workflow execution
    - Check individual workflow runs for detailed output
@@ -129,15 +177,18 @@ SONAR_TOKEN=your_sonarcloud_token
 ## Troubleshooting
 
 ### SonarQube Analysis Fails
+
 - Check that `SONAR_TOKEN` is configured in the `BUILDS` environment
 - Verify token has permissions for the SonarCloud project
 - Check that SonarCloud project key matches: `jdellostritto_spring-microservice-template`
 
 ### Docker Build Fails with Configuration Cache Error
+
 - Configuration cache is disabled (`--no-configuration-cache`) for Jib tasks
 - This is intentional due to Jib's incompatibility with Gradle configuration cache
 
 ### Test Results Not Appearing
+
 - Verify tests are actually running: `make test`
 - Check that test XML files exist in `build/test-results/test/`
 - Test summary requires bash environment (works in GitHub Actions Linux runners)

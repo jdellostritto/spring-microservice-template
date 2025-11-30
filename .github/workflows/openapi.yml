@@ -1,0 +1,79 @@
+name: Generate & Publish OpenAPI Spec
+
+on:
+  push:
+    branches: [ master, develop ]
+  workflow_dispatch:
+
+jobs:
+  openapi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Build project
+        run: ./gradlew build --no-daemon -x test
+
+      - name: Start application and generate OpenAPI spec
+        run: |
+          # Start the application in the background
+          ./gradlew bootRun --no-daemon &
+          APP_PID=$!
+          
+          # Wait for app to start
+          sleep 10
+          
+          # Create output directory
+          mkdir -p docs
+          
+          # Fetch and save the OpenAPI spec
+          if curl -s http://localhost:8080/v3/api-docs.yaml -o docs/openapi.yaml; then
+            echo "✅ OpenAPI spec generated successfully"
+            echo "📄 Spec location: docs/openapi.yaml"
+          else
+            echo "❌ Failed to generate OpenAPI spec"
+            exit 1
+          fi
+          
+          # Kill the background application
+          kill $APP_PID || true
+          wait $APP_PID 2>/dev/null || true
+
+      - name: Add job summary
+        run: |
+          echo "## 📋 OpenAPI Specification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ OpenAPI spec generated and published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📍 **Available at:**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Spec File:** \`docs/openapi.yaml\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Documentation:** \`docs/api.html\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Publish OpenAPI spec to docs/
+        # avoid infinite loop on pushes created by this workflow
+        if: ${{ github.actor != 'github-actions[bot]' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/openapi.yaml
+          
+          # Check if there are actual changes before committing
+          if git diff --cached --quiet; then
+            echo "ℹ️ No changes to OpenAPI spec"
+          else
+            git commit -m "Update OpenAPI specification [skip ci]"
+            git push
+          fi
