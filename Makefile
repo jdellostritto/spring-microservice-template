@@ -1,4 +1,4 @@
-.PHONY: build test clean check stop bootrun dockerbuild image run down delete kube-apply kube-delete prune sonar test-report
+.PHONY: build test clean check stop bootrun dockerbuild docker-push-ghcr image run down delete kube-apply kube-delete prune sonar test-report
 
 # Load environment variables from .env file if it exists
 -include .env
@@ -53,12 +53,17 @@ stop:
 bootrun:
 	$(GRADLEW) bootRun
 
+# Build Docker image locally to Docker daemon
 dockerbuild:
 	$(GRADLEW) jibDockerBuild --no-configuration-cache
 
-#Used with github actions CI
+# Build and push Docker image to GHCR (used in GitHub Actions)
+docker-push-ghcr:
+	$(GRADLEW) jib --no-configuration-cache -Djib.to.image=ghcr.io/jdellostritto/$(PROJECT) -Djib.to.tags=${TAG} -Djib.to.auth.username=${DOCKER_USER} -Djib.to.auth.password=${DOCKER_ACCESS_TOKEN}
+
+# Legacy target for backward compatibility
 image:
-	$(GRADLEW) jib -Djib.to.tags=${TAG} -Djib.to.auth.username=${DOCKER_USER} -Djib.to.auth.password=${DOCKER_ACCESS_TOKEN}
+	$(GRADLEW) jib --no-configuration-cache -Djib.to.tags=${TAG} -Djib.to.auth.username=${DOCKER_USER} -Djib.to.auth.password=${DOCKER_ACCESS_TOKEN}
 
 run:
 	$(COMPOSE) $(LOCAL_CONFIG) up
