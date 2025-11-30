@@ -2,7 +2,7 @@
 # = Spring Doc
 # ===============================
 springdoc:
-  version: 1.5.13
+  version: 0.0.1-SNAPSHOT
   api-docs:
     path: /v3/api-docs
   swagger-ui:
@@ -11,15 +11,17 @@ springdoc:
     enabled: true
 
   group-configs:
-  - group: v1-departing
-    paths-to-match: /flip/**
-    produces-to-match: application/vnd.flipfoundry.depart.v1+json
-    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
-  - group: v1-greeting
+  - group: greeting-v1
     paths-to-match: /flip/**
     produces-to-match: application/vnd.flipfoundry.greeting.v1+json
-    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
-  - group: v2-greeting
+    packages-to-scan: com.flipfoundry.tutorial.application.web
+  
+  - group: departing-v1
+    paths-to-match: /flip/**
+    produces-to-match: application/vnd.flipfoundry.departing.v1+json
+    packages-to-scan: com.flipfoundry.tutorial.application.web
+ 
+  - group: greeting-v2
     paths-to-match: /flip/**
     produces-to-match: application/vnd.flipfoundry.greeting.v2+json
-    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
+    packages-to-scan: com.flipfoundry.tutorial.application.web

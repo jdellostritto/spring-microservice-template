@@ -12,7 +12,6 @@ The project provides the following Make targets (work on both local development 
 - **`make test`** - Build and run tests
 - **`make test-report`** - Generate test results summary for GitHub job summary
 - **`make sonar`** - Build and run SonarQube/SonarCloud analysis (with token check)
-- **`make javadoc`** - Generate Javadoc HTML documentation
 - **`make dbuild_local`** - Build Docker image locally to Docker daemon
 - **`make dbuild_registry`** - Build and push Docker image to registry (GHCR, DockerHub, etc.)
 
@@ -75,7 +74,19 @@ The project provides the following Make targets (work on both local development 
   - HTML documentation at `https://yourusername.github.io/spring-microservice-template/`
   - Includes class hierarchies, method documentation, cross-references
 
-## GitHub Secrets Configuration
+### 5. **openapi.yml** - Generate & Archive OpenAPI Spec
+
+- **Trigger:** Push to `master`/`develop`, manual dispatch (workflow_dispatch)
+- **Make target used:**
+  - `make openapi` - Generate OpenAPI specification
+- **Actions:**
+  - Build project and generate OpenAPI spec via `resolveOpenApi` Gradle task
+  - Uploads spec as GitHub Actions artifact
+  - Artifact retained for 30 days
+  - Publishes summary in GitHub job summary
+- **Output:**
+  - OpenAPI spec file available as workflow artifact: `openapi-spec`
+  - Download from: Actions → Workflow run → Artifacts → `openapi-spec`
 
 ### Required Secrets
 
