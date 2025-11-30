@@ -69,7 +69,7 @@ jib {
     }
     container {
         appRoot = '/usr/app'
-        //user = 'appuser' //REQUIRED if using base-zulu-alpine
+        user = 'appuser' //REQUIRED if using base-zulu-alpine
         jvmFlags = ['-Xms360m', '-Xmx360m']
         ports = ['8700','9001']
         workingDirectory = '/usr/app'
@@ -106,11 +106,8 @@ jacocoTestReport {
     }
 }
 
-sonarqube {
+sonar {
     properties {
-        // SonarQube server configuration
-        //property 'sonar.host.url', 'http://localhost:9000'
-        //property 'sonar.login', 'your-auth-token'
         
         // Project identification
         property "sonar.projectKey", "jdellostritto_spring-microservice-template"
@@ -132,7 +129,7 @@ sonarqube {
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
         
         // Exclusions (optional)
-        //property 'sonar.exclusions', '**/config/**,**/dto/**'
+        property 'sonar.exclusions', '**/generated/**,**/config/**'
     }
 }
 

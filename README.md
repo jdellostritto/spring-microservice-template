@@ -2,7 +2,7 @@
 
 A comprehensive Spring Boot microservice demonstrating enterprise-grade patterns, quality gates, and containerization.
 
-## Project: api-lifecycle-enterprise
+## Project: spring-microservice-template
 
 This is the **enterprise/production-ready** version featuring full CI/CD integration, code quality analysis, and containerization support.
 
