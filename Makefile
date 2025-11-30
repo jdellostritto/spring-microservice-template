@@ -58,16 +58,7 @@ delete:
 
 # Run Static code analysis
 sonar:
-	@if [ -z "$(SONAR_TOKEN)" ]; then \
-		echo "Error: SONAR_TOKEN not set"; \
-		echo ""; \
-		echo "Options:"; \
-		echo "  1. Add to .env file: SONAR_TOKEN=your-token"; \
-		echo "  2. Export: export SONAR_TOKEN=your-token"; \
-		echo "  3. Inline: SONAR_TOKEN=your-token make sonar"; \
-		exit 1; \
-	fi
-	$(GRADLEW) sonar
+	$(GRADLEW) build sonar
 
 
 # KUBERNETES *NIX/BASH RUN.
