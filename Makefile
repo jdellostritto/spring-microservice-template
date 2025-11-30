@@ -1,4 +1,4 @@
-.PHONY: build test clean check stop bootrun dbuild_local dbuild_registry run down delete kube-apply kube-delete prune sonar test-report
+.PHONY: build test clean check stop bootrun dbuild_local dbuild_registry javadoc run down delete kube-apply kube-delete prune sonar test-report
 
 # Load environment variables from .env file if it exists
 -include .env
@@ -56,6 +56,10 @@ check:
 
 stop:
 	$(GRADLEW) --stop
+
+# Generate Javadoc documentation
+javadoc:
+	$(GRADLEW) javadoc
 
 bootrun:
 	$(GRADLEW) bootRun

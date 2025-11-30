@@ -158,3 +158,13 @@ gradle.projectsEvaluated {
             }
         }
 }
+
+// Javadoc configuration
+javadoc {
+	destinationDir = file("${buildDir}/docs/javadoc")
+	options {
+		encoding = 'UTF-8'
+		docEncoding = 'UTF-8'
+		charSet = 'UTF-8'
+	}
+}
