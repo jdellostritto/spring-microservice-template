@@ -27,10 +27,11 @@ build:
 test: build
 	$(GRADLEW) test
 
+# Used be GitHub Actions to append test results to the summary.
 test-report:
 	@echo "## 📊 Test Results" >> $(GITHUB_STEP_SUMMARY)
 	@echo "" >> $(GITHUB_STEP_SUMMARY)
-	@if [ -f "build/test-results/test/TEST-*.xml" ]; then \
+	@if [ -d "build/test-results/test" ] && [ "$$(ls -A build/test-results/test/*.xml 2>/dev/null | wc -l)" -gt 0 ]; then \
 		echo "✅ Tests completed successfully" >> $(GITHUB_STEP_SUMMARY); \
 		echo "" >> $(GITHUB_STEP_SUMMARY); \
 		echo "📈 Test reports available in artifacts:" >> $(GITHUB_STEP_SUMMARY); \
