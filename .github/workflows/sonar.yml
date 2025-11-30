@@ -25,8 +25,7 @@ jobs:
       - name: Build and Run SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./gradlew build sonar --no-configuration-cache
+        run: ./gradlew build sonar --no-configuration-cache -Dsonar.token=$SONAR_TOKEN
       
       - name: Post SonarCloud Link to PR
         if: github.event_name == 'pull_request'
