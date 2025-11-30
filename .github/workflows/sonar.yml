@@ -26,7 +26,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./gradlew clean build sonarqube -Dsonar.token=$SONAR_TOKEN
+        run: make sonar
       
       - name: Post SonarCloud Link to PR
         if: github.event_name == 'pull_request'
