@@ -14,14 +14,14 @@ springdoc:
   - group: greeting-v1
     paths-to-match: /flip/**
     produces-to-match: application/vnd.flipfoundry.greeting.v1+json
-    packages-to-scan: com.flipfoundry.tutorial.application.web
+    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
   
   - group: departing-v1
     paths-to-match: /flip/**
     produces-to-match: application/vnd.flipfoundry.departing.v1+json
-    packages-to-scan: com.flipfoundry.tutorial.application.web
+    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
  
   - group: greeting-v2
     paths-to-match: /flip/**
     produces-to-match: application/vnd.flipfoundry.greeting.v2+json
-    packages-to-scan: com.flipfoundry.tutorial.application.web
+    packages-to-scan: com.flipfoundry.tutorial.application.web.controller

@@ -11,3 +11,10 @@ spring:
 # ===============================
 server:
   port: 8700
+
+# ===============================
+# = Springdoc (Swagger/OpenAPI)
+# ===============================
+springdoc:
+  swagger-ui:
+    enabled: true
