@@ -32,6 +32,9 @@ class OpenApiTests {
 		String url = "http://localhost:" + port + "/v3/api-docs";
 		ResponseEntity<String> response = this.restTemplate.getForEntity(url, String.class);
 		
+		System.out.println("Response Status: " + response.getStatusCode());
+		System.out.println("Response Body: " + response.getBody());
+		
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody())
 			.isNotEmpty()
