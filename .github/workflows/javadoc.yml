@@ -1,15 +1,20 @@
-name: Build & Publish Javadocs
+name: Publish Javadocs to GitHub Pages
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  javadoc:
+  build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       pages: write
       id-token: write
 
@@ -27,24 +32,22 @@ jobs:
       - name: Build Javadocs
         run: make javadoc
 
-      - name: Add job summary
-        run: |
-          echo "## 📚 Javadoc Build" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Javadocs generated at \`build/docs/javadoc/\`" >> $GITHUB_STEP_SUMMARY
-          echo "📄 Size: $(du -sh build/docs/javadoc/ | cut -f1)" >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload javadoc artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Javadocs as Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: javadoc
-          path: build/docs/javadoc/
-          retention-days: 30
+          path: build/docs/javadoc
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
-        with:
-          artifact_name: javadoc
+        uses: actions/deploy-pages@v4
