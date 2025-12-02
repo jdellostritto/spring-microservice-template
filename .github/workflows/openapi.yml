@@ -9,7 +9,7 @@ jobs:
   openapi:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout
@@ -25,6 +25,17 @@ jobs:
       - name: Generate OpenAPI specification
         run: make openapi
 
+      - name: Verify OpenAPI spec
+        run: |
+          if [ -f "build/openapi/openapi.yaml" ]; then
+            echo "✅ OpenAPI spec generated successfully"
+            echo "File size: $(wc -c < build/openapi/openapi.yaml) bytes"
+            head -20 build/openapi/openapi.yaml
+          else
+            echo "❌ Failed to generate OpenAPI spec"
+            exit 1
+          fi
+
       - name: Upload OpenAPI spec as artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -32,6 +43,42 @@ jobs:
           name: openapi-spec
           path: build/openapi/openapi.yaml
           retention-days: 30
+
+      - name: Extract version from gradle.properties
+        id: version
+        run: |
+          VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && success()
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/openapi/openapi.yaml
+          tag_name: ${{ steps.version.outputs.version }}
+          body: |
+            ## OpenAPI Specification
+            
+            Generated OpenAPI 3.0.1 specification for spring-microservice-template
+            
+            ### Access the spec:
+            - **Latest release**: https://github.com/${{ github.repository }}/releases/latest/download/openapi.yaml
+            - **This version**: https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/openapi.yaml
+            
+            ### Quick download:
+            ```bash
+            curl -L https://github.com/${{ github.repository }}/releases/latest/download/openapi.yaml -o openapi.yaml
+            ```
+            
+            ### Import into tools:
+            - **Swagger UI**: Upload to https://editor.swagger.io
+            - **Postman**: Import from URL
+            - **IntelliJ**: REST Client plugin
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add job summary
         run: |
@@ -43,7 +90,11 @@ jobs:
             echo "📊 **Spec Details:**" >> $GITHUB_STEP_SUMMARY
             echo "- **File:** \`openapi.yaml\`" >> $GITHUB_STEP_SUMMARY
             echo "- **Size:** $(wc -c < build/openapi/openapi.yaml) bytes" >> $GITHUB_STEP_SUMMARY
-            echo "- **Available in:** Artifacts" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📦 **Download:**" >> $GITHUB_STEP_SUMMARY
+            echo "- Available in: Artifacts & GitHub Releases" >> $GITHUB_STEP_SUMMARY
+            echo "- Latest: \`https://github.com/${{ github.repository }}/releases/latest/download/openapi.yaml\`" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ OpenAPI spec generation failed" >> $GITHUB_STEP_SUMMARY
           fi
