@@ -63,7 +63,7 @@ javadoc:
 
 # Generate OpenAPI specification
 openapi: build
-	$(GRADLEW) resolveOpenApi
+	$(GRADLEW) generateOpenApiDocs --no-configuration-cache
 
 bootrun:
 	$(GRADLEW) bootRun
@@ -74,7 +74,7 @@ dbuild_local:
 
 # Generic target to build and push Docker image to any registry
 # Usage: make docker-push DOCKER_REGISTRY_IMAGE=ghcr.io/user/image DOCKER_TAG=latest DOCKER_USERNAME=user DOCKER_PASSWORD=token
-# Or set environment variables and call: make docker-push
+# Or set environment variables and call: make dbuild_registry
 dbuild_registry:
 	$(GRADLEW) jib --no-configuration-cache \
 		-Djib.to.image=$(DOCKER_REGISTRY_IMAGE) \
