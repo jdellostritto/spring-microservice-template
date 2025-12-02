@@ -1,207 +1,204 @@
 # Spring Microservice Template
 
-A comprehensive Spring Boot microservice demonstrating enterprise-grade patterns, quality gates, and containerization.
+A production-ready Spring Boot microservice template with enterprise-grade patterns, quality gates, containerization, and comprehensive CI/CD integration.
 
-## Project: spring-microservice-template
+> **Quick Links:** [🚀 Getting Started](#quick-start) • [📚 Conventions](#conventions) • [🔧 Setup](#setup) • [📖 Documentation](#documentation)
 
-This is the **enterprise/production-ready** version featuring full CI/CD integration, code quality analysis, and containerization support.
+## Overview
 
-Installation step is required:
+This project demonstrates enterprise conventions and patterns for building scalable, maintainable microservices:
 
-`gradle wrapper --gradle-version 9.2.0`
+✅ **API Versioning** - Content-negotiation with custom media types  
+✅ **OpenAPI/Swagger** - Auto-generated API specs published to GitHub Releases  
+✅ **Javadocs** - Published to GitHub Pages  
+✅ **Code Quality** - SonarQube integration for continuous quality gates  
+✅ **Test Coverage** - JaCoCo with comprehensive test suites  
+✅ **Logging** - Profile-based, structured logging with correlation IDs  
+✅ **Containerization** - Docker support via Jib for optimized image builds  
+✅ **CI/CD** - Complete GitHub Actions workflows for builds, releases, and deployment  
 
-### Key Features
+---
 
-This project demonstrates enterprise-grade conventions and patterns:
+## Quick Start
 
-- **Package hierarchy** - Organized structure following `com.flipfoundry.tutorial.application.*` conventions
-- **URI conventions** - Standardized `/flip/{resource}/` paths across the platform
-- **API versioning** - Content-negotiation with custom media types (`application/vnd.flipfoundry.{resource}.v{version}+json`)
-- **Deprecation strategy** - Clear migration paths using `@Deprecated` annotations and JavaDoc tags
-- **Profile-based logging** - Environment-specific behavior (default/test/deploy) with namespace filtering
-- **Comprehensive documentation** - JavaDocs, OpenAPI/Swagger integration, and architectural clarity
-- **Enterprise tooling** - JaCoCo code coverage, SonarQube analysis, and quality gates
-- **Container-ready** - Docker support with Jib for optimized image builds
-- **Integration testing** - Full test suites demonstrating best practices
+### Prerequisites
+
+- Java 21
+- Gradle 9.2.0
+- Docker (optional, for container builds)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/jdellostritto/spring-microservice-template.git
+cd spring-microservice-template
+
+# Build the project
+make build
+
+# Run locally
+make bootrun
+```
+
+**Access the application:**
+
+- Application: `http://localhost:8700`
+- Swagger UI: `http://localhost:8700/test/index.html`
+- Actuator: `http://localhost:8700/actuator/health`
+
+---
 
 ## Conventions
 
-This project follows enterprise conventions across logging, APIs, and packaging for consistency and clarity.
+This project implements enterprise conventions for consistency and clarity. Click on each section for detailed documentation:
 
-### Quick Reference
-
-| Convention | Details |
-|-----------|---------|
-| **Logging** | Profile-based (default/test/deploy) with namespace filtering |
-| **API Paths** | `/flip/{resource}/` following Flip Foundry conventions |
-| **Versioning** | Content-negotiation via Accept headers with media types |
-| **Packages** | `com.flipfoundry.tutorial.application.*` hierarchy |
-| **Deprecation** | `@Deprecated` annotations with clear migration paths |
+| Convention | Purpose | Learn More |
+|-----------|---------|-----------|
+| **Logging** | Structured, profile-based logging with correlation IDs | [📋 Logging Guide](./docs/LOGGING.md) |
+| **API Versioning** | Content-negotiation with custom media types | [📋 API Versioning Guide](./docs/API-VERSIONING.md) |
+| **Package Structure** | Organized hierarchy for scalability | [📋 Package Structure Guide](./docs/PACKAGE-STRUCTURE.md) |
+| **URI Conventions** | Standardized `/flip/{resource}/` paths | [📋 URI Conventions Guide](./docs/URI-CONVENTIONS.md) |
+| **Deprecation Strategy** | Clear migration paths for API changes | [📋 Deprecation Guide](./docs/DEPRECATION.md) |
 
 ---
 
-## Logging Conventions
+## Available Commands
 
-This project uses Logback with profile-based configuration for environment-specific behavior:
+### Build & Test
 
-### Summary
-
-- **Three deployment profiles** control logging verbosity based on environment
-- **Namespace-filtered logging** separates application logs from framework logs
-- **UTC timestamps** ensure consistency across distributed systems
-- **Asynchronous appenders** prevent logging from impacting application latency
-- **Correlation ID support** enables distributed tracing across microservices
-- **Separate error logs** provide dedicated operational visibility
-- **Tiered retention** balances compliance needs with storage costs
-
-### Comprehensive Details
-
-#### Profiles
-
-| Profile | Application Logs | System Logs | File Logging | Use Case |
-|---------|-----------------|-----------|--------------|----------|
-| `default` | DEBUG | INFO | Yes (30 days) | Local development with detailed troubleshooting |
-| `test` | INFO | INFO | No | Testing with reduced noise |
-| `deploy` | ERROR | ERROR | No | Production with minimal performance impact |
-
-**Usage:** Set the active profile via `spring.profiles.active` in `application-{profile}.yml`
-
-#### Log Format
-
-**Production Format:**
-
-```text
-%d{"ISO8601", UTC} [%X{traceId}] [%thread] [%-5level] %logger{5} - %msg
+```bash
+make build          # Build the project with tests
+make test           # Run test suite
+make clean          # Clean build artifacts
+make check          # Run code quality checks
 ```
 
-Components:
+### Documentation
 
-- `%d{"ISO8601", UTC}` - ISO 8601 timestamp in UTC for distributed consistency
-- `[%X{traceId}]` - Correlation ID for distributed tracing (MDC)
-- `[%thread]` - Thread name for concurrent request tracking
-- `[%-5level]` - Left-aligned log level for improved readability
-- `%logger{5}` - Logger name abbreviated to 5 characters
-- `%msg` - Log message
-
-**Development Format:**
-
-```text
-%d{yyyy-MM-dd HH:mm:ss} %p %t %c %M - %m
+```bash
+make javadoc        # Generate Javadocs (publishes to GitHub Pages)
+make openapi        # Extract OpenAPI spec (publishes to GitHub Releases)
 ```
 
-Components:
+### Run & Deploy
 
-- `%d{yyyy-MM-dd HH:mm:ss}` - Local timestamp for readability
-- `%p` - Priority/level
-- `%t` - Thread name
-- `%c` - Full class name
-- `%M` - Method name
-- `%m` - Message
+```bash
+make bootrun        # Run Spring Boot application locally
+make dbuild_local   # Build Docker image locally
+make dbuild_registry  # Build and push Docker image to registry
+```
 
-#### Appender Strategy
+### Analysis
 
-| Appender | Purpose | Async | Encoding | Use Cases |
-|----------|---------|-------|----------|-----------|
-| `consoleAppender` | Production-grade console output | Via wrapper | UTF-8 | All profiles |
-| `dailyRollingFileAppender` | Development file logging | Via wrapper | UTF-8 | Default profile only |
-| `errorFileAppender` | Dedicated error file (90 days) | Via wrapper | UTF-8 | Default profile for compliance |
-| `ASYNC_CONSOLE` | Non-blocking console writes | Yes | - | Wraps consoleAppender |
-| `ASYNC_FILE` | Non-blocking file writes | Yes | - | Wraps dailyRollingFileAppender |
-| `ASYNC_ERROR_FILE` | Non-blocking error writes | Yes | - | Wraps errorFileAppender |
-
-#### Industry Best Practices Implemented
-
-##### Asynchronous Logging
-
-- All appenders wrapped in `AsyncAppender` to prevent blocking application threads
-- Queue size: 512, discarding threshold: 0 (no logs lost)
-- Benefits: Prevents latency spikes from I/O operations
-
-##### Correlation ID / Distributed Tracing
-
-- Logback MDC pattern: `%X{traceId}` included in all log patterns
-- Enables cross-service request tracking in microservices
-- Integrates with Spring Cloud Sleuth for automatic propagation
-
-##### UTF-8 Encoding
-
-- Explicit `charset="UTF-8"` on all encoders
-- Ensures international character support and consistency
-
-##### Error Log Separation
-
-- Separate `errorFileAppender` with ThresholdFilter for ERROR-level logs
-- 5MB file size limit (vs 2MB for general logs)
-- 90-day retention for compliance and operations
-
-##### Tiered Retention Strategy
-
-- General logs: 30 days (development needs)
-- Error logs: 90 days (compliance/audit)
-- Test profile: No file storage (cost optimization)
-
-##### Cloud-Native Deployment
-
-- Deploy profile: Console-only output (no file I/O)
-- Works seamlessly with Docker/Kubernetes log drivers
-- Enables log aggregation with ELK, Splunk, etc.
-
-##### Improved Log Readability
-
-- Left-aligned level format `[%-5level]` for visual scanning
-- Consistent timestamp format across appenders
-- Clear hierarchy of information (time → trace → thread → level → logger)
-
-#### Configuration Details
-
-- **Namespace filtering** - `com.flipfoundry.*` logs handled separately with profile-specific levels, `additivity="false"` prevents duplicate logs
-- **Root logger** - Catches all system and third-party library logs not matched by specific loggers
-- **File logging** - Automatic daily rollover with size-based backup triggers
-- **Error tracking** - Separate error file enables quick operational response
-
-**Location:** `src/main/resources/logback-spring.xml`
+```bash
+make sonar          # Run SonarQube analysis
+```
 
 ---
 
-## API Conventions
+## Documentation
 
-### URI Paths
+### 📖 Full Documentation
 
-All endpoints follow the pattern: `/flip/{resource}/{action}`
+Detailed guides for all conventions and integrations:
 
-Examples:
+- **[Logging Conventions](./docs/LOGGING.md)** - Profile-based configuration, log formats, appender strategies
+- **[API Versioning](./docs/API-VERSIONING.md)** - Content-negotiation, media types, version management
+- **[Package Structure](./docs/PACKAGE-STRUCTURE.md)** - Recommended package hierarchy and organization
+- **[URI Conventions](./docs/URI-CONVENTIONS.md)** - RESTful path patterns and naming
+- **[Deprecation Strategy](./docs/DEPRECATION.md)** - How to deprecate and evolve APIs
 
-- `/flip/greeting/greet` - Primary greeting endpoint
-- `/flip/departing/depart` - Departure message endpoint
+### 🔗 External Resources
 
-### Versioning Strategy
-
-Versioning is implemented via **content-negotiation** using Accept headers with custom media types:
-
-```text
-Accept: application/vnd.flipfoundry.{resource}.v{version}+json
-```
-
-Examples:
-
-- `application/vnd.flipfoundry.greeting.v1+json` - Greeting API version 1
-- `application/vnd.flipfoundry.greeting.v2+json` - Greeting API version 2
-
-### Deprecation Approach
-
-Old API versions are marked with:
-
-- `@Deprecated(since = "X.Y", forRemoval = boolean)` - Java deprecation annotation
-- `@deprecated` - JavaDoc tag with clear migration instructions
-- Consistent error handling with HTTP 406 (Not Acceptable) for unsupported media types
+- **Swagger UI (Local)**: `http://localhost:8700/test/index.html`
+- **OpenAPI Spec (GitHub Releases)**: [Latest Release](https://github.com/jdellostritto/spring-microservice-template/releases/latest)
+- **Javadocs (GitHub Pages)**: [GitHub Pages Site](https://jdellostritto.github.io/spring-microservice-template/)
+- **SonarQube Dashboard**: [SonarCloud Project](https://sonarcloud.io/project/overview?id=jdellostritto_spring-microservice-template)
 
 ---
 
-## Package Conventions
+## CI/CD Workflows
 
-**Structure:** `com.flipfoundry.tutorial.application.{layer}`
+All CI/CD workflows are automated via GitHub Actions:
 
-- `web.controller` - REST controllers
-- `web.dto` - Data transfer objects
-- `service` - Business logic
-- `repository` - Data access
+| Workflow | Trigger | Output |
+|----------|---------|--------|
+| **Build & Test** | Push to any branch | Test results, coverage reports |
+| **SonarQube Analysis** | Push to master | Code quality gates, metrics |
+| **Javadoc Generation** | Push to master | Published to GitHub Pages |
+| **OpenAPI Publishing** | Push to master | Released on GitHub Releases |
+| **Docker Build** | Push to master | Container image to registry |
+
+---
+
+## Setup
+
+### Prerequisites
+
+```shell
+gradle wrapper --gradle-version 9.2.0
+```
+
+### Project Structure
+
+```text
+spring-microservice-template/
+├── src/
+│   ├── main/
+│   │   ├── java/com/flipfoundry/tutorial/application/
+│   │   │   ├── web/controller/           # REST Controllers
+│   │   │   ├── web/dto/                  # Data Transfer Objects
+│   │   │   ├── config/                   # Spring Configuration
+│   │   │   └── utils/                    # Utilities
+│   │   └── resources/
+│   │       ├── application.yml           # Main configuration
+│   │       ├── application-*.yml         # Profile configs
+│   │       └── logback-spring.xml        # Logging config
+│   └── test/
+│       ├── java/                         # Integration tests
+│       └── resources/
+└── .github/workflows/                    # CI/CD workflows
+    ├── build.yml                         # Build & test
+    ├── sonar.yml                         # Code quality
+    ├── javadoc.yml                       # Javadoc publishing
+    └── openapi.yml                       # OpenAPI publishing
+```
+
+### Key Technologies
+
+- **Spring Boot 3.5.7** - Modern Spring framework
+- **Java 21** - Latest LTS version
+- **Gradle 9.2.0** - Dependency management and build
+- **Springdoc OpenAPI 2.6.0** - Automatic API documentation
+- **JaCoCo** - Code coverage
+- **SonarQube** - Code quality analysis
+- **Jib** - Container image building
+- **Docker** - Containerization
+
+---
+
+## Contributing
+
+This project demonstrates enterprise patterns and conventions. When contributing:
+
+1. Follow the established [conventions](#conventions)
+2. Maintain test coverage above 80%
+3. Ensure SonarQube quality gates pass
+4. Update relevant documentation
+
+---
+
+## License
+
+Apache 2.0 - See LICENSE file for details
+
+---
+
+## Support
+
+For questions or issues:
+
+- 📝 Open an issue on GitHub
+- 💬 Check the [Documentation](#documentation) section
+- 🔍 Review the code examples in `src/`
