@@ -18,3 +18,32 @@ server:
 springdoc:
   swagger-ui:
     enabled: true
+
+# ===============================
+# = Actuator / Health Probes
+# ===============================
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,prometheus,livenessProbe,readinessProbe
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+    diskSpace:
+      enabled: true
+
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      profile: ${spring.profiles.active:default}

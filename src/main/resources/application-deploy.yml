@@ -4,3 +4,20 @@
 springdoc:
   swagger-ui:
     enabled: false
+
+# ===============================
+# = Actuator / Health Probes - Production Overrides
+# ===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,livenessProbe,readinessProbe
+
+  endpoint:
+    health:
+      show-details: when-authorized
+
+  health:
+    diskSpace:
+      enabled: false

@@ -34,20 +34,6 @@ build:
 test: build
 	$(GRADLEW) test
 
-# Used be GitHub Actions to append test results to the summary.
-test-report:
-	@echo "## 📊 Test Results" >> $(GITHUB_STEP_SUMMARY)
-	@echo "" >> $(GITHUB_STEP_SUMMARY)
-	@if [ -d "build/test-results/test" ] && [ "$$(ls -A build/test-results/test/*.xml 2>/dev/null | wc -l)" -gt 0 ]; then \
-		echo "✅ Tests completed successfully" >> $(GITHUB_STEP_SUMMARY); \
-		echo "" >> $(GITHUB_STEP_SUMMARY); \
-		echo "📈 Test reports available in artifacts:" >> $(GITHUB_STEP_SUMMARY); \
-		echo "- JaCoCo Coverage Report" >> $(GITHUB_STEP_SUMMARY); \
-		echo "- Detailed Test Report" >> $(GITHUB_STEP_SUMMARY); \
-	else \
-		echo "⚠️ No test results found" >> $(GITHUB_STEP_SUMMARY); \
-	fi
-
 clean:
 	$(GRADLEW) clean
 
@@ -69,13 +55,13 @@ bootrun:
 	$(GRADLEW) bootRun
 
 # Build Docker image locally to Docker daemon
-dbuild_local:
+dbuild-local:
 	$(GRADLEW) jibDockerBuild --no-configuration-cache
 
 # Generic target to build and push Docker image to any registry
 # Usage: make docker-push DOCKER_REGISTRY_IMAGE=ghcr.io/user/image DOCKER_TAG=latest DOCKER_USERNAME=user DOCKER_PASSWORD=token
 # Or set environment variables and call: make dbuild_registry
-dbuild_registry:
+dbuild-registry:
 	$(GRADLEW) jib --no-configuration-cache \
 		-Djib.to.image=$(DOCKER_REGISTRY_IMAGE) \
 		-Djib.to.tags=$(DOCKER_TAG) \
@@ -119,3 +105,17 @@ prune:
 	docker system prune -f
 	docker network prune -f
 	docker volume prune -f
+
+# Used be GitHub Actions to append test results to the summary.
+test-report:
+	@echo "## 📊 Test Results" >> $(GITHUB_STEP_SUMMARY)
+	@echo "" >> $(GITHUB_STEP_SUMMARY)
+	@if [ -d "build/test-results/test" ] && [ "$$(ls -A build/test-results/test/*.xml 2>/dev/null | wc -l)" -gt 0 ]; then \
+		echo "✅ Tests completed successfully" >> $(GITHUB_STEP_SUMMARY); \
+		echo "" >> $(GITHUB_STEP_SUMMARY); \
+		echo "📈 Test reports available in artifacts:" >> $(GITHUB_STEP_SUMMARY); \
+		echo "- JaCoCo Coverage Report" >> $(GITHUB_STEP_SUMMARY); \
+		echo "- Detailed Test Report" >> $(GITHUB_STEP_SUMMARY); \
+	else \
+		echo "⚠️ No test results found" >> $(GITHUB_STEP_SUMMARY); \
+	fi

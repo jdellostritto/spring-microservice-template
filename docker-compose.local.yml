@@ -1,14 +1,30 @@
 version: '3.4'
+
 services:
   app:
-    image: flipfoundry/api-lifecycle-enterprise
+    image: ghcr.io/jdellostritto/spring-microservice-template:master
+    container_name: spring-microservice-template-local
     environment:
       SPRING_PROFILES_ACTIVE: default
     ports:
-      - 8700:8700
-      - 9001:9001
-
-    #REQUIRED if running the default profile.
-    #If you log from the container uncomment. Use volume to ensure the container remains immutable.
+      - 8700:8700      # Application API
+      - 9001:9001      # Actuator/Management
+    
     volumes:
-    - ./logs:/usr/app/logs:rw
+      - ./build/logs:/usr/app/logs:rw
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8700/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - spring-net
+    
+    restart: unless-stopped
+
+networks:
+  spring-net:
+    driver: bridge

@@ -25,3 +25,19 @@ springdoc:
     paths-to-match: /flip/**
     produces-to-match: application/vnd.flipfoundry.greeting.v2+json
     packages-to-scan: com.flipfoundry.tutorial.application.web.controller
+
+
+# ===============================
+# = Actuator / Health Probes - Development Overrides
+# ===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,loggers,threaddump,heapdump,configprops,beans,livenessProbe,readinessProbe
+
+  endpoint:
+    health:
+      show-details: always
+    env:
+      show-values: ALWAYS

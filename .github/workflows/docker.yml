@@ -41,7 +41,7 @@ jobs:
           DOCKER_TAG: latest,master,${{ github.sha }}
           DOCKER_USERNAME: ${{ github.actor }}
           DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: make dbuild_registry
+        run: make dbuild-registry
           
       - name: Verify image in GHCR
         run: |
