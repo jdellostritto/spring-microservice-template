@@ -12,7 +12,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus,livenessProbe,readinessProbe
+        include: health,info,metrics,livenessProbe,readinessProbe
 
   endpoint:
     health:
