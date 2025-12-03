@@ -59,10 +59,6 @@ jib {
 
         //Option 2: Ubuntu base image from GHCR (broader package availability)
         //image = "ghcr.io/jdellostritto/docker-jdk-base/jdk-ubuntu:latest"
-
-        //Option 3: Local testing with Azul Zulu from Docker Hub
-        //image = "azul/zulu-openjdk-alpine:11"
-
     }
     to {
         image = "ghcr.io/jdellostritto/spring-microservice-template"

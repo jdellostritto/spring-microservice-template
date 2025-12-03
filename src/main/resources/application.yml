@@ -23,6 +23,9 @@ springdoc:
 # = Actuator / Health Probes
 # ===============================
 management:
+  server:
+    port: 9000  # Dedicated Actuator port for all environments
+
   endpoints:
     web:
       base-path: /actuator

@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * <p>The depart controller implements an endpoint that returns a "Goodbye" message along with a timestamp in the DTO</p>
+ * <p>The departing controller implements an endpoint that returns a "Goodbye" message along with a timestamp in the DTO</p>
  *
  * @author  <a href="mailto:jim.dellostritto@gmail.com">Jim DelloStritto</a>
  * @version 1.0
@@ -21,12 +21,12 @@ import java.util.Date;
 
 @RestController
 @RequestMapping(value = "/flip/departing/")
-public class DepartController {
+public class DepartingController {
 
     /**
-     * Default constructor for DepartController.
+     * Default constructor for DepartingController.
      */
-    public DepartController() {
+    public DepartingController() {
     }
 
     /**

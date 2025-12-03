@@ -56,7 +56,7 @@ curl -X GET "$BASE_URL/api/greeting/greet?name=JDello" \
   -H "Accept: application/vnd.flipfoundry.greeting.v2+json" \
   -w "\nStatus: %{http_code}\n\n"
 
-# V1 - Depart (Deprecated, moved to DepartController)
+# V1 - Depart (Deprecated, moved to DepartingController)
 echo -e "${GREEN}5. Greeting V1 - depart (DEPRECATED - in GreetingController)${NC}"
 echo "   Media Type: application/vnd.flipfoundry.greeting.v1+json"
 echo "   Command:"
@@ -71,7 +71,7 @@ echo -e "\n${YELLOW}[DEPART CONTROLLER]${NC}"
 echo "Base URL: $BASE_URL/api/departing/"
 
 # V1 - Depart (Current location)
-echo -e "${GREEN}6. Departing V1 - depart (CURRENT - in DepartController)${NC}"
+echo -e "${GREEN}6. Departing V1 - depart (CURRENT - in DepartingController)${NC}"
 echo "   Media Type: application/vnd.flipfoundry.departing.v1+json"
 echo "   Command:"
 echo "   curl -X GET \"$BASE_URL/api/departing/depart\" \\"
@@ -108,7 +108,7 @@ echo -e "✓ GreetingController:"
 echo "  - GET /api/greeting/greet (V1 - DEPRECATED)"
 echo "  - GET /api/greeting/greet (V2 - CURRENT)"
 echo "  - GET /api/greeting/depart (V1 - DEPRECATED)"
-echo -e "\n✓ DepartController:"
+echo -e "\n✓ DepartingController:"
 echo "  - GET /api/departing/depart (V1 - CURRENT)"
 echo -e "\n✓ Media Types Supported:"
 echo "  - application/vnd.flipfoundry.greeting.v1+json"

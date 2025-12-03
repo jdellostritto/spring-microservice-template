@@ -79,11 +79,11 @@ public class GreetingController {
     }
 
     /**
-     * <p>Depart endpoint (Deprecated - moved to DepartController).</p>
+     * <p>Depart endpoint (Deprecated - moved to DepartingController).</p>
      *
      * @return mono The Depart DTO.
      * @see DepartDTO
-     * @deprecated As of release 1.2, use {@link com.flipfoundry.tutorial.application.web.controller.DepartController#depart()} instead
+     * @deprecated As of release 1.2, use {@link com.flipfoundry.tutorial.application.web.controller.DepartingController#depart()} instead
      * @since 1.1
      */
     @Deprecated(since = "1.2", forRemoval = true)

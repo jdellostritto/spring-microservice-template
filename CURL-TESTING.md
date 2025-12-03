@@ -18,7 +18,7 @@ http://localhost:8080
 
 Routes requests to `GreetingController` for greeting and departure operations. Supports two versions via content negotiation.
 
-#### 2. DepartController
+#### 2. DepartingController
 **Base Path:** `/api/departing/`
 
 Handles departure messages. Currently only supports v1.
@@ -153,7 +153,7 @@ curl -X GET "http://localhost:8080/api/greeting/depart" \
 
 ---
 
-## DepartController Endpoints
+## DepartingController Endpoints
 
 ### GET /api/departing/depart
 
