@@ -1,12 +1,10 @@
 package com.flipfoundry.tutorial.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.reactive.server.WebTestClient.bindToApplicationContext;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
@@ -24,13 +22,18 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 class ActuatorHealthProbesTests {
 
 	@Autowired
-	private ApplicationContext applicationContext;
+	private TestRestTemplate restTemplate;
 
 	private WebTestClient webTestClient;
 
 	@org.junit.jupiter.api.BeforeEach
+	@SuppressWarnings("null")
 	void setup() {
-		this.webTestClient = bindToApplicationContext(applicationContext).build();
+		// Create WebTestClient using the TestRestTemplate which binds to the random port
+		String baseUrl = String.valueOf(restTemplate.getRootUri());
+		this.webTestClient = WebTestClient.bindToServer()
+			.baseUrl(baseUrl)
+			.build();
 	}
 
 	/**
