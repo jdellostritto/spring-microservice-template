@@ -1,0 +1,81 @@
+// Alloy configuration for Spring Microservice Template observability
+// Receives traces, metrics, and logs via OTLP and exports to Prometheus, Tempo, and Loki
+
+logging {
+  level = "info"
+}
+
+// OTLP receiver for traces, metrics, and logs
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [otelcol.processor.batch.default.input]
+    metrics = [otelcol.processor.batch.default.input]
+    logs = [otelcol.processor.batch.default.input]
+  }
+}
+
+// Batch processor to optimize throughput
+otelcol.processor.batch "default" {
+  send_batch_size = 1024
+  timeout = "5s"
+
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+    metrics = [otelcol.exporter.prometheus.default.input]
+    logs = [otelcol.exporter.loki.default.input]
+  }
+}
+
+// Export traces to Tempo
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+// Export metrics to Prometheus
+otelcol.exporter.prometheus "default" {
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+    queue_config {
+      capacity = 10000
+    }
+  }
+}
+
+// Export logs to Loki
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// Prometheus scrape config to also collect from the application
+prometheus.scrape "spring_microservice" {
+  targets = [{
+    __address__ = "spring-microservice-template:9001",
+    job = "spring-microservice-template",
+    service = "spring-microservice-template",
+  }]
+  metrics_path = "/actuator/prometheus"
+  scrape_interval = "30s"
+  forward_to = [prometheus.remote_write.default.receiver]
+}

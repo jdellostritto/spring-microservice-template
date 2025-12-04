@@ -1,0 +1,34 @@
+server:
+  http_listen_port: 3200
+  grpc_listen_port: 4317
+
+distributor:
+  rate_limit_bytes: 5000000
+  max_write_batch_size: 500
+
+ingester:
+  lifecycler:
+    ring:
+      replication_factor: 1
+    num_tokens: 128
+    heartbeat_timeout: 5m
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /var/tempo/wal
+    local:
+      path: /var/tempo/blocks
+    block:
+      version: vParquet
+      bloom_filter_enabled: true
+
+querier:
+  frontend_worker:
+    frontend_address: localhost:3200
+
+query_frontend:
+  cache_control_header: true
+  max_cache_freshness_age: 10m
+  compression: snappy
