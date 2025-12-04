@@ -2,9 +2,7 @@ package com.flipfoundry.tutorial.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
@@ -21,16 +19,16 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ActuatorHealthProbesTests {
 
-	@Autowired
-	private TestRestTemplate restTemplate;
+	@org.springframework.boot.test.web.server.LocalManagementPort
+	private int managementPort;
 
 	private WebTestClient webTestClient;
 
 	@org.junit.jupiter.api.BeforeEach
 	@SuppressWarnings("null")
 	void setup() {
-		// Create WebTestClient using the TestRestTemplate which binds to the random port
-		String baseUrl = String.valueOf(restTemplate.getRootUri());
+		// Create WebTestClient connecting to actuator on its dynamically assigned port
+		String baseUrl = String.format("http://localhost:%d", managementPort);
 		this.webTestClient = WebTestClient.bindToServer()
 			.baseUrl(baseUrl)
 			.build();

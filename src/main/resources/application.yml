@@ -23,11 +23,13 @@ springdoc:
 # = Actuator / Health Probes
 # ===============================
 management:
+  server:
+    port: 9001
   endpoints:
     web:
       base-path: /actuator
       exposure:
-        include: health,info,metrics,prometheus,livenessProbe,readinessProbe
+        include: health,info,metrics,prometheus,livenessProbe,readinessProbe,groups
 
   endpoint:
     health:
