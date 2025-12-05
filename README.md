@@ -111,6 +111,7 @@ Detailed guides for all conventions and integrations:
 - **[Custom Metrics](./docs/CUSTOM_METRICS.md)** - Micrometer-based custom metrics, AOP recording, Prometheus integration
 - **[cURL Testing](./docs/CURL-TESTING.md)** - Testing endpoints with cURL examples
 - **[GitHub Actions Setup](./docs/GITHUB_ACTIONS_SETUP.md)** - CI/CD pipeline configuration and automation
+- **[Observability Stack](./observability-stack/README.md)** - OpenTelemetry, Prometheus, Grafana, Tempo, Loki setup and usage
 
 ### 🔗 External Resources
 

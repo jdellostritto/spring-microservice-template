@@ -54,3 +54,27 @@ management:
     tags:
       application: ${spring.application.name}
       profile: ${spring.profiles.active:default}
+
+# ===============================
+# = OpenTelemetry Configuration
+# ===============================
+otel:
+  sdk:
+    disabled: false
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: otlp
+  logs:
+    exporter: otlp
+  exporter:
+    otlp:
+      protocol: grpc
+      endpoint: http://localhost:4317
+  resource:
+    attributes:
+      service.name: spring-microservice-template
+      service.version: 0.0.1-SNAPSHOT
+  instrumentation:
+    micrometer:
+      enabled: true
