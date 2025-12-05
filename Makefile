@@ -25,7 +25,7 @@ DOCKER_PASSWORD ?= $(DOCKER_ACCESS_TOKEN)
 COMPOSE ?= $(DOCKER_COMPOSE) $(RUN_CONFIG)
 DOCKER_COMPOSE ?= docker-compose
 RUN_CONFIG ?= -f docker-compose.yml
-LOCAL_CONFIG ?= -f docker-compose.local.yml
+LOCAL_CONFIG ?= -f observability-stack/docker-compose.local.yml
 
 build:
 	$(GRADLEW) clean

@@ -20,7 +20,6 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
-    agent
 }
 
 repositories {
@@ -29,8 +28,6 @@ repositories {
 
 
 dependencies {
-    agent "io.opentelemetry.javaagent:opentelemetry-javaagent:2.13.3"
-
     /* actuator */
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     /* webflux  */
@@ -38,8 +35,8 @@ dependencies {
     /* Logging  */
     implementation 'org.springframework.boot:spring-boot-starter-logging'
 
-    /* OpenTelemetry */
-    runtimeOnly group: 'io.opentelemetry.instrumentation', name: 'opentelemetry-micrometer-1.5', version: '2.14.0-alpha'
+    /* OpenTelemetry Spring Boot Starter - zero-code instrumentation */
+    implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:2.14.0'
     implementation 'io.micrometer:micrometer-registry-prometheus:1.12.5'
 
     /* AOP / AspectJ for metrics interception */
@@ -61,13 +58,6 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
 }
 
-task copyAgent(type: Copy) {
-    from configurations.agent {
-        rename "opentelemetry-javaagent-.*\\.jar", "opentelemetry-javaagent.jar"
-    }
-    into "${buildDir}/agent"
-}
-
 jib {
     from {
         //Option 1: Alpine base image from GHCR (lightweight, recommended for production)
@@ -83,14 +73,10 @@ jib {
     container {
         appRoot = '/usr/app'
         user = 'appuser' //REQUIRED if using base-zulu-alpine
-        jvmFlags = ['-Xms360m', '-Xmx360m', '-javaagent:/usr/app/opentelemetry-javaagent.jar']
+        jvmFlags = ['-Xms360m', '-Xmx360m']
         ports = ['8700','9001']
         workingDirectory = '/usr/app'
         volumes = ['/usr/app/logs'] //REQUIRED if running the default profile.
-        files {
-            from "${buildDir}/agent"
-            into '/usr/app'
-        }
     }
     allowInsecureRegistries = false
 }

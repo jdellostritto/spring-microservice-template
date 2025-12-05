@@ -1,5 +1,7 @@
 package com.flipfoundry.tutorial.application.web.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +25,8 @@ import java.util.Date;
 @RequestMapping(value = "/flip/departing/")
 public class DepartingController {
 
+    private static final Logger logger = LoggerFactory.getLogger(DepartingController.class);
+
     /**
      * <p>Depart endpoint. Returns departure information with timestamp.</p>
      *
@@ -33,11 +37,14 @@ public class DepartingController {
 
     @GetMapping(value = "/depart", produces="application/vnd.flipfoundry.departing.v1+json")
     public Mono<DepartDTO> depart() {
+        logger.info("Departing request received");
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         Date date = new Date(timestamp.getTime());
         // S is the millisecond
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy' 'HH:mm:ss:S");
-        return Mono.just( new DepartDTO("Goodbye", simpleDateFormat.format(date)));
+        String formattedTimestamp = simpleDateFormat.format(date);
+        logger.debug("Departing at: {}", formattedTimestamp);
+        return Mono.just( new DepartDTO("Goodbye", formattedTimestamp));
     }
 
 }
