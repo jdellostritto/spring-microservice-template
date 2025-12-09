@@ -41,3 +41,10 @@ management:
       show-details: always
     env:
       show-values: ALWAYS
+
+# ===============================
+# = OpenTelemetry - Disabled for Development
+# ===============================
+otel:
+  sdk:
+    disabled: true

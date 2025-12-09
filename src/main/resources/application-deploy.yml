@@ -21,3 +21,29 @@ management:
   health:
     diskSpace:
       enabled: false
+
+# ===============================
+# = OpenTelemetry - Enabled for Production
+# ===============================
+otel:
+  sdk:
+    disabled: false
+  exporter:
+    otlp:
+      protocol: grpc
+      endpoint: http://collector:4317
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: otlp
+  logs:
+    exporter: otlp
+  resource:
+    attributes:
+      'service.name': spring-microservice-template
+      'service.version': '0.0.1-SNAPSHOT'
+  instrumentation:
+    logback-appender:
+      enabled: true
+    micrometer:
+      enabled: true

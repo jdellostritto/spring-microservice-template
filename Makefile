@@ -12,12 +12,13 @@ endif
 
 PROJECT ?= spring-microservice-template
 
-IMAGE ?= jdellostritto/$(PROJECT)
+#IMAGE ?= /$(PROJECT)
 BUILD ?= latest
 
 # Docker registry configuration (can be overridden by GitHub Actions or environment)
 # Examples: ghcr.io/jdellostritto/spring-microservice-template, jdellostritto/spring-microservice-template, etc.
-DOCKER_REGISTRY_IMAGE ?= $(IMAGE)
+DOCKER_REGISTRY ?= ghcr.io/jdellostritto
+DOCKER_REGISTRY_IMAGE ?= $(DOCKER_REGISTRY)/$(PROJECT)
 DOCKER_TAG ?= $(BUILD)
 DOCKER_USERNAME ?= $(DOCKER_USER)
 DOCKER_PASSWORD ?= $(DOCKER_ACCESS_TOKEN)
@@ -25,7 +26,7 @@ DOCKER_PASSWORD ?= $(DOCKER_ACCESS_TOKEN)
 COMPOSE ?= $(DOCKER_COMPOSE) $(RUN_CONFIG)
 DOCKER_COMPOSE ?= docker-compose
 RUN_CONFIG ?= -f docker-compose.yml
-LOCAL_CONFIG ?= -f observability-stack/docker-compose.local.yml
+LOCAL_CONFIG ?= -f docker-compose.local.yml
 
 build:
 	$(GRADLEW) clean
@@ -56,11 +57,11 @@ bootrun:
 
 # Build Docker image locally to Docker daemon
 dbuild-local:
-	$(GRADLEW) jibDockerBuild --no-configuration-cache
+	$(GRADLEW) jibDockerBuild -Djib.to.image=$(PROJECT) -Djib.to.tags=local --no-configuration-cache
 
 # Generic target to build and push Docker image to any registry
 # Usage: make docker-push DOCKER_REGISTRY_IMAGE=ghcr.io/user/image DOCKER_TAG=latest DOCKER_USERNAME=user DOCKER_PASSWORD=token
-# Or set environment variables and call: make dbuild_registry
+# Make sure you set environment variables and call: make dbuild_registry
 dbuild-registry:
 	$(GRADLEW) jib --no-configuration-cache \
 		-Djib.to.image=$(DOCKER_REGISTRY_IMAGE) \
@@ -68,15 +69,21 @@ dbuild-registry:
 		-Djib.to.auth.username=$(DOCKER_USERNAME) \
 		-Djib.to.auth.password=$(DOCKER_PASSWORD)
 
-run:
-	$(COMPOSE) $(LOCAL_CONFIG) up
+up:
+	$(COMPOSE) $(LOCAL_CONFIG) up -d
 
 down:
 	$(COMPOSE) $(LOCAL_CONFIG) down
 	$(COMPOSE) $(LOCAL_CONFIG) rm -f
 
+up-obs:
+	cd observability-stack && $(DOCKER_COMPOSE) $(RUN_CONFIG) up -d
+
+down-obs:
+	cd observability-stack && $(DOCKER_COMPOSE) $(RUN_CONFIG) down
+
 delete:
-	docker image rm $(IMAGE):$(BUILD)
+	docker image rm $(DOCKER_REGISTRY_IMAGE):$(DOCKER_TAG)
 
 # Run Static code analysis
 sonar:

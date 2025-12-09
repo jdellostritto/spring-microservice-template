@@ -1,5 +1,5 @@
 version: '3.4'
 services:
   app:
-    image: flipfoundry/api-lifecycle-enterprise
-    
+    image: ghcr.io/jdellostritto/spring-microservice-template:latest
+   

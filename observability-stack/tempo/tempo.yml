@@ -1,34 +1,62 @@
 server:
   http_listen_port: 3200
-  grpc_listen_port: 4317
 
 distributor:
-  rate_limit_bytes: 5000000
-  max_write_batch_size: 500
+  receivers:
+    jaeger:                            # the receives all come from the OpenTelemetry collector.  more configuration information can
+      protocols:                       # be found there: https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver
+        thrift_http:                   #
+        grpc:                          # for a production deployment you should only enable the receivers you need!
+        thrift_binary:
+        thrift_compact:
+    zipkin:                           # this configuration will listen on all ports and protocols that tempo is capable of.
+    otlp:
+      protocols:
+        http:
+          endpoint: 0.0.0.0:4318
+        grpc:
+          endpoint: 0.0.0.0:4317
+    opencensus:
 
 ingester:
-  lifecycler:
-    ring:
-      replication_factor: 1
-    num_tokens: 128
-    heartbeat_timeout: 5m
+  max_block_duration: 5m               # cut the headblock when this much time passes. this is being set for demo purposes and should probably be left alone normally
+
+compactor:
+  compaction:
+    block_retention: 1h                # overall Tempo trace retention. set for demo purposes
+
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: docker-compose
+  storage:
+    path: /tmp/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
+  # REQUIRED when using local-blocks
+  traces_storage:
+    path: /tmp/tempo/generator/traces
+  processor:
+    local_blocks:
+      # include all spans, not just server spans
+      filter_server_spans: false
+      # uncomment if you want historical TraceQL metrics and not only “recent”
+      flush_to_storage: true
 
 storage:
   trace:
-    backend: local
+    backend: local                     # backend configuration to use
     wal:
-      path: /var/tempo/wal
+      path: /tmp/tempo/wal             # where to store the the wal locally
     local:
-      path: /var/tempo/blocks
-    block:
-      version: vParquet
-      bloom_filter_enabled: true
+      path: /tmp/tempo/blocks
 
-querier:
-  frontend_worker:
-    frontend_address: localhost:3200
-
-query_frontend:
-  cache_control_header: true
-  max_cache_freshness_age: 10m
-  compression: snappy
+overrides:
+  defaults:
+    metrics_generator:
+      processors:
+        - service-graphs
+        - span-metrics
+        - local-blocks

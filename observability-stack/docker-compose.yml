@@ -1,7 +1,6 @@
 services:
-
   spring-microservice-template:
-    image: spring-microservice-template:latest
+    image: spring-microservice-template:local
     environment:
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4317
@@ -10,7 +9,8 @@ services:
       OTEL_LOGS_EXPORTER: otlp
       OTEL_RESOURCE_ATTRIBUTES: "service.name=spring-microservice-template,service.version=0.0.1-SNAPSHOT"
       SPRING_PROFILES_ACTIVE: deploy
-      
+    #volumes:
+    #  - ./build/logs:/usr/app/logs:rw
     ports:
       - "8700:8700"
       - "9001:9001"
@@ -19,6 +19,7 @@ services:
 
   collector:
     container_name: collector
+    #image: otel/opentelemetry-collector-contrib:0.104.0-arm64
     image: grafana/alloy:latest 
     command:
       - "run"
@@ -35,8 +36,8 @@ services:
       - "12345:12345" #Alloy UI
       - "4317:4317" # OTLP gRPC receiver
       - "4318:4318" # OTLP HTTP receiver
-      - "8888:8888" # Prometheus exporter metric
-      - "8889:8889" # Prometheus exporter metric
+      - "8888" # Prometheus exporter metric
+      - "8889" # Prometheus exporter metric
     environment:
       - AGENT_MODE=flow
     depends_on:
@@ -68,6 +69,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./prometheus/rules.yml:/etc/prometheus/rules.yml
+      - ./prometheus/rules-latency.yml:/etc/prometheus/rules-latency.yml
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --enable-feature=exemplar-storage

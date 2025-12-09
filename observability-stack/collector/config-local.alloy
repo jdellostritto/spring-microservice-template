@@ -28,7 +28,7 @@ otelcol.processor.batch "default" {
 
   output {
     traces = [otelcol.exporter.otlp.tempo.input]
-    metrics = [otelcol.exporter.prometheus.default.input]
+    metrics = [otelcol.exporter.prometheus.prometheus_exporter.input]
     logs = [otelcol.exporter.loki.default.input]
   }
 }
@@ -43,18 +43,20 @@ otelcol.exporter.otlp "tempo" {
   }
 }
 
-// Export metrics to Prometheus
-otelcol.exporter.prometheus "default" {
+//--------------------------
+// METRICS SERVICE
+otelcol.exporter.prometheus "prometheus_exporter" {
   forward_to = [prometheus.remote_write.default.receiver]
+  resource_to_telemetry_conversion = true
 }
 
 prometheus.remote_write "default" {
+  external_labels = {
+    telemetry_auto_instrumentation = "true",
+  }
   endpoint {
     url = "http://prometheus:9090/api/v1/write"
-    queue_config {
-      capacity = 10000
-    }
-  }
+  } 
 }
 
 // Export logs to Loki
@@ -69,13 +71,13 @@ loki.write "default" {
 }
 
 // Prometheus scrape config to also collect from the application
-prometheus.scrape "spring_microservice" {
-  targets = [{
-    __address__ = "spring-microservice-template:9001",
-    job = "spring-microservice-template",
-    service = "spring-microservice-template",
-  }]
-  metrics_path = "/actuator/prometheus"
-  scrape_interval = "30s"
-  forward_to = [prometheus.remote_write.default.receiver]
-}
+//prometheus.scrape "spring-microservice-template" {
+//  targets = [{
+//    __address__ = "spring-microservice-template:9001",
+//    job = "spring-microservice-template",
+//    service = "spring-microservice-template",
+//  }]
+//  metrics_path = "/actuator/prometheus"
+//  scrape_interval = "30s"
+//  forward_to = [prometheus.remote_write.default.receiver]
+//}
