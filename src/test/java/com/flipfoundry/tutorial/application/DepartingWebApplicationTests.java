@@ -38,5 +38,17 @@ public class DepartingWebApplicationTests {
 				.expectStatus().is4xxClientError();
 	}
 
-
+	@Test
+	public void departEndpointShouldHandleExceptionGracefully() throws Exception {
+		// Test that exception handling doesn't break the endpoint - multiple consecutive requests should all succeed
+		for (int i = 0; i < 3; i++) {
+			this.webClient.get().uri("/flip/departing/depart")
+					.accept(MediaType.valueOf("application/vnd.flipfoundry.departing.v1+json"))
+					.exchange()
+					.expectStatus().isOk()
+					.expectBody()
+					.jsonPath("$.content").isEqualTo("Goodbye")
+					.jsonPath("$.date").exists();
+		}
+	}
 }

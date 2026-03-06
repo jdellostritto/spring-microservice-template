@@ -1,0 +1,34 @@
+spring:
+  profiles:
+    active: default
+
+# Enable OpenAPI in tests
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+# Use separate management port in tests - matches production configuration
+management:
+  server:
+    port: 9001
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,prometheus,livenessProbe,readinessProbe,groups
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+    diskSpace:
+      enabled: true

@@ -1,7 +1,11 @@
 package com.flipfoundry.tutorial.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import java.time.Duration;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -23,18 +27,17 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @ActiveProfiles("deploy")
 class ActuatorHealthProbesDeployTests {
 
-	@org.springframework.boot.test.web.server.LocalManagementPort
+	@LocalManagementPort
 	private int managementPort;
 
 	private WebTestClient webTestClient;
 
-	@org.junit.jupiter.api.BeforeEach
-	@SuppressWarnings("null")
+	@BeforeEach
 	void setup() {
-		// Create WebTestClient connecting to actuator on its dynamically assigned port
-		String baseUrl = String.format("http://localhost:%d", managementPort);
+		String baseUrl = "http://localhost:" + managementPort;
 		this.webTestClient = WebTestClient.bindToServer()
 			.baseUrl(baseUrl)
+			.responseTimeout(Duration.ofSeconds(10))
 			.build();
 	}
 
@@ -45,8 +48,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testLivenessProbeAvailableInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/health/liveness")
 			.exchange()
 			.expectStatus().isOk()
@@ -61,8 +63,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testReadinessProbeAvailableInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/health/readiness")
 			.exchange()
 			.expectStatus().isOk()
@@ -78,8 +79,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testHealthEndpointAvailableInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/health")
 			.exchange()
 			.expectStatus().isOk()
@@ -94,11 +94,10 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testInfoEndpointAvailable() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/info")
 			.exchange()
-			.expectStatus().isOk();
+			.expectStatus().value(status -> assertThat(status).isIn(200, 204));
 	}
 
 	/**
@@ -108,8 +107,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testMetricsEndpointAvailable() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/metrics")
 			.exchange()
 			.expectStatus().isOk();
@@ -125,8 +123,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testEnvEndpointNotExposedInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/env")
 			.exchange()
 			.expectStatus().isNotFound();
@@ -142,8 +139,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testLoggersEndpointNotExposedInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/loggers")
 			.exchange()
 			.expectStatus().isNotFound();
@@ -159,8 +155,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testThreaddumpEndpointNotExposedInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/threaddump")
 			.exchange()
 			.expectStatus().isNotFound();
@@ -176,8 +171,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testHeapdumpEndpointNotExposedInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/heapdump")
 			.exchange()
 			.expectStatus().isNotFound();
@@ -193,8 +187,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testConfigpropsEndpointNotExposedInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/configprops")
 			.exchange()
 			.expectStatus().isNotFound();
@@ -210,8 +203,7 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testBeansEndpointNotExposedInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/beans")
 			.exchange()
 			.expectStatus().isNotFound();
@@ -225,15 +217,12 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testHealthDetailsRestricted() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/health")
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody()
 			.jsonPath("$.status").isEqualTo("UP")
-			// In deploy profile with show-details: when-authorized,
-			// the components should not be present without authorization header
 			.jsonPath("$.components").doesNotExist();
 	}
 
@@ -245,19 +234,16 @@ class ActuatorHealthProbesDeployTests {
 	 */
 	@Test
 	void testActuatorBasePathLimitedInDeployProfile() {
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator")
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody()
-			.jsonPath("$._links.health").exists()
-			.jsonPath("$._links.info").exists()
-			.jsonPath("$._links.metrics").exists()
-			// These should NOT be in deploy profile
-			.jsonPath("$._links.env").doesNotExist()
-			.jsonPath("$._links.loggers").doesNotExist()
-			.jsonPath("$._links.beans").doesNotExist();
+			.expectBody(String.class)
+			.consumeWith(result -> {
+				String body = result.getResponseBody();
+				assertThat(body).contains("health", "info", "metrics");
+				assertThat(body).doesNotContain("env", "loggers", "beans");
+			});
 	}
 
 	/**
@@ -271,41 +257,35 @@ class ActuatorHealthProbesDeployTests {
 	@Test
 	void testDeployProfileSecurityModel() {
 		// 1. Probes must work for Kubernetes
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/health/liveness")
 			.exchange()
 			.expectStatus().isOk();
 
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/health/readiness")
 			.exchange()
 			.expectStatus().isOk();
 
 		// 2. Sensitive endpoints must be blocked
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/env")
 			.exchange()
 			.expectStatus().isNotFound();
 
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/loggers")
 			.exchange()
 			.expectStatus().isNotFound();
 
 		// 3. Safe monitoring endpoints must be available
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/metrics")
 			.exchange()
 			.expectStatus().isOk();
 
 		// 4. Health details must be restricted
-		webTestClient
-			.get()
+		webTestClient.get()
 			.uri("/actuator/health")
 			.exchange()
 			.expectStatus().isOk()

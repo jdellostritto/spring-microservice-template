@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.flipfoundry.tutorial.application.web.dto.DepartDTO;
 import com.flipfoundry.tutorial.application.web.dto.GreetingDTO;
 import com.flipfoundry.tutorial.application.web.dto.GreetingDTOV2;
+import com.flipfoundry.tutorial.application.web.exception.GreetingException;
 
 import reactor.core.publisher.Mono;
 
@@ -60,10 +61,15 @@ public class GreetingController {
      */
     @GetMapping(value = "/greet", produces="application/vnd.flipfoundry.greeting.v2+json")
     public Mono<GreetingDTOV2> greetv2(@RequestParam(value = "name", defaultValue = "World") String name) {
-        logger.info("Greeting request received for name: {}", name);
-        String greeting = String.format(TEMPLATE, name);
-        logger.debug("Greeting generated: {}", greeting);
-        return Mono.just( new GreetingDTOV2(greeting));
+        try {
+            logger.info("Greeting request received for name: {}", name);
+            String greeting = String.format(TEMPLATE, name);
+            logger.debug("Greeting generated: {}", greeting);
+            return Mono.just( new GreetingDTOV2(greeting));
+        } catch (Exception e) {
+            logger.error("Error processing greeting request for name: {}", name, e);
+            throw new GreetingException("Failed to process greeting for: " + name, e);
+        }
     }
 
 
@@ -79,10 +85,15 @@ public class GreetingController {
     @Deprecated(since = "1.3", forRemoval = false)
     @GetMapping(value = "/greet", produces="application/vnd.flipfoundry.greeting.v1+json")
     public Mono<GreetingDTO> greet(@RequestParam(value = "name", defaultValue = "World") String name) {
-        logger.warn("Deprecated v1 greeting endpoint called for name: {}", name);
-        long count = counter.incrementAndGet();
-        logger.debug("Request count: {}", count);
-        return Mono.just( new GreetingDTO(count, String.format(TEMPLATE, name)));
+        try {
+            logger.warn("Deprecated v1 greeting endpoint called for name: {}", name);
+            long count = counter.incrementAndGet();
+            logger.debug("Request count: {}", count);
+            return Mono.just( new GreetingDTO(count, String.format(TEMPLATE, name)));
+        } catch (Exception e) {
+            logger.error("Error processing deprecated v1 greeting request for name: {}", name, e);
+            throw new GreetingException("Failed to process v1 greeting for: " + name, e);
+        }
     }
 
     /**
@@ -91,12 +102,17 @@ public class GreetingController {
      * @return mono The Depart DTO.
      * @see DepartDTO
      * @deprecated As of release 1.2, use {@link com.flipfoundry.tutorial.application.web.controller.DepartingController#depart()} instead
-     * @since 1.1
+     * 
      */
     @Deprecated(since = "1.2", forRemoval = true)
     @GetMapping(value = "/depart", produces="application/vnd.flipfoundry.greeting.v1+json")
     public Mono<DepartDTO> depart() {
-        logger.error("Deprecated depart endpoint called - will be removed in future version");
-        return Mono.just( new DepartDTO("Goodbye"));
+        try {
+            logger.error("Deprecated depart endpoint called - will be removed in future version");
+            return Mono.just( new DepartDTO("Goodbye"));
+        } catch (Exception e) {
+            logger.error("Error processing deprecated depart endpoint", e);
+            throw new GreetingException("Failed to process depart request", e);
+        }
     }
 }

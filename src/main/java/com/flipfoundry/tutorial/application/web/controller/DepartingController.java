@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.flipfoundry.tutorial.application.web.dto.DepartDTO;
+import com.flipfoundry.tutorial.application.web.exception.DepartingException;
 
 import reactor.core.publisher.Mono;
 
@@ -37,14 +38,18 @@ public class DepartingController {
 
     @GetMapping(value = "/depart", produces="application/vnd.flipfoundry.departing.v1+json")
     public Mono<DepartDTO> depart() {
-        logger.info("Departing request received");
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        Date date = new Date(timestamp.getTime());
-        // S is the millisecond
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy' 'HH:mm:ss:S");
-        String formattedTimestamp = simpleDateFormat.format(date);
-        logger.debug("Departing at: {}", formattedTimestamp);
-        return Mono.just( new DepartDTO("Goodbye", formattedTimestamp));
+        try {
+            logger.info("Departing request received");
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            Date date = new Date(timestamp.getTime());
+            // S is the millisecond
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy' 'HH:mm:ss:S");
+            String formattedTimestamp = simpleDateFormat.format(date);
+            logger.debug("Departing at: {}", formattedTimestamp);
+            return Mono.just( new DepartDTO("Goodbye", formattedTimestamp));
+        } catch (Exception e) {
+            logger.error("Error processing departing request", e);
+            throw new DepartingException("Failed to process departing request", e);
+        }
     }
-
 }

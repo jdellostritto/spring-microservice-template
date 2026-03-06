@@ -1,18 +1,45 @@
 <configuration>
+    <!-- Console Appender - Production Grade -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8" class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>%d{"ISO8601", UTC} [%X{traceId}] [%thread] [%-5level] %logger{5} - %msg%n</Pattern>
+            </layout>
+        </encoder>
+    </appender>
 
+    <!-- Async Console Appender - Wraps CONSOLE -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="CONSOLE" />
+    </appender>
+
+    <!-- Default Profile: Console only with DEBUG level -->
     <springProfile name="default">
         <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
 
+    <!-- Deploy Profile: Console (INFO) - OTEL handles log export to Loki -->
     <springProfile name="deploy">
         <root level="INFO">
             <appender-ref ref="ASYNC_CONSOLE"/>
         </root>
 
+        <!-- Suppress noisy debug logs -->
         <logger name="org.springframework" level="WARN"/>
         <logger name="reactor.netty" level="WARN"/>
+        <logger name="io.grpc" level="WARN"/>
+        <logger name="org.apache.commons" level="WARN"/>
+    </springProfile>
+
+    <!-- Test Profile: Console only -->
+    <springProfile name="test">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
     </springProfile>
 
 </configuration>

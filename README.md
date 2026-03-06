@@ -45,21 +45,7 @@ make bootrun
 
 - Application: `http://localhost:8700`
 - Swagger UI: `http://localhost:8700/test/index.html`
-- Actuator: `http://localhost:8700/actuator/health`
-
----
-
-## Conventions
-
-This project implements enterprise conventions for consistency and clarity. Click on each section for detailed documentation:
-
-| Convention | Purpose | Learn More |
-|-----------|---------|-----------|
-| **Logging** | Structured, profile-based logging with correlation IDs | [📋 Logging Guide](./docs/LOGGING.md) |
-| **API Versioning** | Content-negotiation with custom media types | [📋 API Versioning Guide](./docs/API-VERSIONING.md) |
-| **Package Structure** | Organized hierarchy for scalability | [📋 Package Structure Guide](./docs/PACKAGE-STRUCTURE.md) |
-| **URI Conventions** | Standardized `/flip/{resource}/` paths | [📋 URI Conventions Guide](./docs/URI-CONVENTIONS.md) |
-| **Deprecation Strategy** | Clear migration paths for API changes | [📋 Deprecation Guide](./docs/DEPRECATION.md) |
+- Actuator: `http://localhost:9001/actuator/health`
 
 ---
 
