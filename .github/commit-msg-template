@@ -1,0 +1,19 @@
+# <type>(<scope>): <subject>
+# 
+# <body>
+#
+# <footer>
+#
+# Type:     feat, fix, docs, style, refactor, test, chore, perf
+# Scope:    (optional) specific component
+# Subject:  Imperative mood, 50 char max
+# Body:     Why, not how. Wrapped at 72 chars.
+# Footer:   Co-authored-by: Name <email@example.com> (if applicable)
+#
+# Example:
+# feat(kafka): add DepartingEvent to event bus
+#
+# Extend the kafka-producer module with a DepartingEvent proto
+# message and publish it from the departing request pipeline.
+#
+# Co-authored-by: Jane Smith <jane@example.com>

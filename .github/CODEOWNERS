@@ -1,0 +1,31 @@
+# Repository Code Owners
+# When changes are made to these files, they request review from the specified owners
+
+# Web Controllers
+src/main/java/com/flipfoundry/tutorial/application/web/ @jdellostritto
+
+# Domain Events & Event Bus
+src/main/java/com/flipfoundry/tutorial/application/events/ @jdellostritto
+modules/kafka-producer/ @jdellostritto
+
+# Configuration
+src/main/resources/ @jdellostritto
+
+# Tests
+src/test/ @jdellostritto
+
+# Build and CI/CD
+build.gradle @jdellostritto
+settings.gradle @jdellostritto
+Makefile @jdellostritto
+.github/workflows/ @jdellostritto
+
+# Infrastructure
+infra/ @jdellostritto
+
+# Documentation
+README.md @jdellostritto
+docs/ @jdellostritto
+
+# Default: any code change requires review
+* @jdellostritto
