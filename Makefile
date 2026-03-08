@@ -1,4 +1,4 @@
-.PHONY: build test clean check stop bootrun dbuild_local dbuild_registry javadoc openapi run down delete kube-apply kube-delete prune sonar test-report
+.PHONY: build test clean check stop bootrun dbuild-local dbuild-registry javadoc openapi up down up-stack down-stack delete kube-apply kube-delete prune sonar test-report
 
 # Load environment variables from .env file if it exists
 -include .env
@@ -26,7 +26,7 @@ DOCKER_PASSWORD ?= $(DOCKER_ACCESS_TOKEN)
 COMPOSE ?= $(DOCKER_COMPOSE) $(RUN_CONFIG)
 DOCKER_COMPOSE ?= docker-compose
 RUN_CONFIG ?= -f docker-compose.yml
-LOCAL_CONFIG ?= -f docker-compose.local.yml
+LOCAL_APP_DIR ?= infra/local-app
 
 build:
 	$(GRADLEW) clean
@@ -70,17 +70,16 @@ dbuild-registry:
 		-Djib.to.auth.password=$(DOCKER_PASSWORD)
 
 up:
-	$(COMPOSE) $(LOCAL_CONFIG) up -d
+	$(DOCKER_COMPOSE) -f $(LOCAL_APP_DIR)/docker-compose.yml -f $(LOCAL_APP_DIR)/docker-compose.local.yml up -d
 
 down:
-	$(COMPOSE) $(LOCAL_CONFIG) down
-	$(COMPOSE) $(LOCAL_CONFIG) rm -f
+	$(DOCKER_COMPOSE) -f $(LOCAL_APP_DIR)/docker-compose.yml -f $(LOCAL_APP_DIR)/docker-compose.local.yml down
 
-up-obs:
-	cd observability-stack && $(DOCKER_COMPOSE) $(RUN_CONFIG) up -d
+up-stack:
+	cd infra/compose-stack && $(DOCKER_COMPOSE) $(RUN_CONFIG) up -d
 
-down-obs:
-	cd observability-stack && $(DOCKER_COMPOSE) $(RUN_CONFIG) down
+down-stack:
+	cd infra/compose-stack && $(DOCKER_COMPOSE) $(RUN_CONFIG) down
 
 delete:
 	docker image rm $(DOCKER_REGISTRY_IMAGE):$(DOCKER_TAG)
@@ -99,13 +98,13 @@ sonar:
 # . Run command below first for minikube and make sure the image is available.
 #   eval $(minikube -p minikube docker-env)
 kube-apply:
-	envsubst < ./kubernetes/kubernetes.chart > ./kubernetes/$(PROJECT).yml
-	cat ./kubernetes/kubernetes.chart
-	kubectl apply -f ./kubernetes/$(PROJECT).yml
+	envsubst < ./infra/kubernetes/kubernetes.chart > ./infra/kubernetes/$(PROJECT).yml
+	cat ./infra/kubernetes/kubernetes.chart
+	kubectl apply -f ./infra/kubernetes/$(PROJECT).yml
 
 kube-delete:
-	kubectl delete -f ./kubernetes/$(PROJECT).yml
-	rm ./kubernetes/$(PROJECT).yml
+	kubectl delete -f ./infra/kubernetes/$(PROJECT).yml
+	rm ./infra/kubernetes/$(PROJECT).yml
 
 # PRUNE
 prune:

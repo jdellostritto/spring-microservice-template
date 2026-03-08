@@ -1,15 +1,20 @@
-# Kubernetes Liveness and Readiness Probes
+# Kubernetes Probes
 
-This document describes best practices for configuring Kubernetes probes using Spring Boot Actuator endpoints.
+> **Convention:** Liveness checks only JVM/Spring context health — never infra dependencies. Readiness checks critical dependencies (DB, cache, queue). Both use dedicated Actuator endpoints on the management port, not the application port.
+
+| Probe | Endpoint | Fails when | K8s action |
+|---|---|---|---|
+| Liveness | `/actuator/health/liveness` | JVM stuck / context broken | Restart pod |
+| Readiness | `/actuator/health/readiness` | Dependency unavailable | Remove from service |
 
 ## Overview
 
-Kubernetes uses two types of health checks:
+Spring Boot Actuator exposes dedicated probe endpoints. The key distinction:
 
-- **Liveness Probe** - Determines if a pod should be restarted
-- **Readiness Probe** - Determines if a pod is ready to serve traffic
+- **Liveness failing** = pod is broken and must be replaced (restart)
+- **Readiness failing** = pod is temporarily unavailable (stop routing traffic, do not restart)
 
-Spring Boot Actuator provides dedicated health endpoints optimized for each probe type.
+Liveness must never fail due to a database outage — that would trigger cascading restarts.
 
 ## Spring Boot Actuator Endpoints
 

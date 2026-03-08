@@ -1,7 +1,9 @@
 package com.flipfoundry.tutorial.application.web.controller;
 
+import com.flipfoundry.tutorial.application.events.GreetingEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +30,9 @@ public class DepartingController {
 
     private static final Logger logger = LoggerFactory.getLogger(DepartingController.class);
 
+    @Autowired
+    private GreetingEventPublisher eventPublisher;
+
     /**
      * <p>Depart endpoint. Returns departure information with timestamp.</p>
      *
@@ -46,6 +51,11 @@ public class DepartingController {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy' 'HH:mm:ss:S");
             String formattedTimestamp = simpleDateFormat.format(date);
             logger.debug("Departing at: {}", formattedTimestamp);
+            eventPublisher.publishDeparting("anonymous", "Goodbye")
+                 .subscribe(
+                     meta -> logger.debug("DepartingEvent published"),
+                     err  -> logger.error("Failed to publish DepartingEvent", err)
+                 );
             return Mono.just( new DepartDTO("Goodbye", formattedTimestamp));
         } catch (Exception e) {
             logger.error("Error processing departing request", e);

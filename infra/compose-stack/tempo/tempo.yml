@@ -42,7 +42,7 @@ metrics_generator:
     local_blocks:
       # include all spans, not just server spans
       filter_server_spans: false
-      # uncomment if you want historical TraceQL metrics and not only “recent”
+      # uncomment if you want historical TraceQL metrics and not only ΓÇ£recentΓÇ¥
       flush_to_storage: true
 
 storage:

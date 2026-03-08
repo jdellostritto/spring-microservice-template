@@ -1,13 +1,5 @@
 # ===============================
-# = Spring Profiles
-# ===============================
-spring:
-  profiles:
-    active: default
-    locale: en
-
-# ===============================
-# = Server Ports.
+# = Server Ports
 # ===============================
 server:
   port: 8700
@@ -16,8 +8,26 @@ server:
 # = Springdoc (Swagger/OpenAPI)
 # ===============================
 springdoc:
+  version: 0.0.1-SNAPSHOT
+  api-docs:
+    path: /v3/api-docs
   swagger-ui:
     enabled: true
+    path: /test/index.html
+    operationsSorter: method
+  group-configs:
+  - group: greeting-v1
+    paths-to-match: /flip/**
+    produces-to-match: application/vnd.flipfoundry.greeting.v1+json
+    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
+  - group: departing-v1
+    paths-to-match: /flip/**
+    produces-to-match: application/vnd.flipfoundry.departing.v1+json
+    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
+  - group: greeting-v2
+    paths-to-match: /flip/**
+    produces-to-match: application/vnd.flipfoundry.greeting.v2+json
+    packages-to-scan: com.flipfoundry.tutorial.application.web.controller
 
 # ===============================
 # = Actuator / Health Probes
@@ -35,14 +45,12 @@ management:
     health:
       probes:
         enabled: true
-      show-details: always
+      show-details: never
 
   health:
     livenessState:
       enabled: true
     readinessState:
-      enabled: true
-    diskSpace:
       enabled: true
 
   metrics:
@@ -54,4 +62,11 @@ management:
     tags:
       application: ${spring.application.name}
       profile: ${spring.profiles.active:default}
+
+# ===============================
+# = OpenTelemetry - Disabled by default
+# ===============================
+otel:
+  sdk:
+    disabled: true
 

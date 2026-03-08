@@ -1,0 +1,40 @@
+# ===============================
+# = Test overrides for the deploy profile
+# ===============================
+# Provides safe defaults so @ActiveProfiles("deploy") tests can load
+# a Spring context without external infrastructure (no Kafka, no OTel collector).
+
+# ===============================
+# = Actuator / Health Probes - must mirror application-deploy.yml
+# ===============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,livenessProbe,readinessProbe
+
+  endpoint:
+    health:
+      show-details: when-authorized
+
+  health:
+    diskSpace:
+      enabled: false
+
+# ===============================
+# = Kafka - disabled in tests, no broker available
+# ===============================
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+
+kafka:
+  producer:
+    enabled: false
+
+# ===============================
+# = OTel - disabled in tests, no collector available
+# ===============================
+otel:
+  sdk:
+    disabled: true

@@ -1,8 +1,18 @@
-# GitHub Actions Setup for spring-microservice-template
+# CI/CD Workflows
+
+> **Convention:** All CI/CD operations map 1:1 to `make` targets so they run identically locally and in GitHub Actions. Never add logic to the workflow YAML that isn't also executable via `make`.
 
 ## Overview
 
-This project uses GitHub Actions workflows that are consolidated with Makefile targets for consistency between local development and CI/CD environments.
+Five workflows cover the full delivery pipeline. Each delegates to a `make` target:
+
+| Workflow | File | `make` target | Trigger |
+|---|---|---|---|
+| Build & Test | `build.yml` | `make test` | Push / PR → `master`, `develop` |
+| SonarQube | `sonar.yml` | `make sonar` | Push / PR → `master`, `develop` |
+| Docker | `docker.yml` | `make dbuild-registry` | Push → `master` |
+| Javadocs | `javadoc.yml` | `make javadoc` | Push → `master` |
+| OpenAPI | `openapi.yml` | `make openapi` | Push → `master`, `develop` |
 
 ## Makefile Targets
 

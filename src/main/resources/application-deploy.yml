@@ -1,5 +1,5 @@
 # ===============================
-# = Spring Doc
+# = Spring Doc - Disabled for Production
 # ===============================
 springdoc:
   swagger-ui:
@@ -12,14 +12,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,livenessProbe,readinessProbe
+        include: health,prometheus,livenessProbe,readinessProbe
 
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: never
 
   health:
     diskSpace:
+      enabled: false
+    db:
+      enabled: false
+    kafka:
       enabled: false
 
 # ===============================
@@ -31,7 +35,7 @@ otel:
   exporter:
     otlp:
       protocol: grpc
-      endpoint: http://collector:4317
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}
   traces:
     exporter: otlp
   metrics:
@@ -40,10 +44,21 @@ otel:
     exporter: otlp
   resource:
     attributes:
-      'service.name': spring-microservice-template
-      'service.version': '0.0.1-SNAPSHOT'
+      'service.name': ${OTEL_SERVICE_NAME}
+      'service.version': ${APP_VERSION}
   instrumentation:
     logback-appender:
       enabled: true
     micrometer:
       enabled: true
+
+# ===============================
+# = Kafka - Enabled for Production
+# ===============================
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+kafka:
+  producer:
+    enabled: true

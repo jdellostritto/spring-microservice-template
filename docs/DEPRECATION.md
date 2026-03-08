@@ -1,15 +1,15 @@
 # Deprecation Strategy
 
-This document describes how to deprecate APIs and manage versioning transitions while maintaining backward compatibility.
+> **Convention:** Mark deprecated endpoints with `@Deprecated(since, forRemoval)`, log a WARN on every call, add a `Sunset` response header, and maintain a minimum 6-month deprecation window before removal.
 
 ## Overview
 
-The deprecation strategy enables:
+This strategy ensures:
 
-- Smooth migration paths for clients
-- Clear communication of changes
-- Extended support periods
-- Zero-downtime API evolution
+- Clients get explicit, documented migration paths
+- Removal dates are communicated early via headers and docs
+- No silent breakage — warnings in logs and responses from day one
+- `forRemoval=false` on initial deprecation, upgraded to `true` two versions before removal
 
 ## Deprecation Lifecycle
 

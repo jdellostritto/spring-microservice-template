@@ -1,9 +1,18 @@
 spring:
   profiles:
-    active: default
+    active: test
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+# Disable Kafka producer in tests - no broker available
+kafka:
+  producer:
+    enabled: false
 
 # Enable OpenAPI in tests
 springdoc:
+  version: 0.0.1-SNAPSHOT
   api-docs:
     enabled: true
   swagger-ui:

@@ -1,203 +1,132 @@
-# api-lifecycle-enterprise API Testing Guide
+# Endpoint Testing
 
-## Overview
+> **Convention:** All API endpoints use content-negotiation via the `Accept` header. Always specify the versioned media type — do not rely on default content negotiation.
 
-This guide provides comprehensive curl request examples for testing all API endpoints in the api-lifecycle-enterprise Spring Boot application. The API uses **content negotiation** with custom media types to support multiple API versions on the same endpoint paths.
+## Base URL
 
-## API Structure
-
-### Base URL
 ```
-http://localhost:8080
+http://localhost:8700
 ```
 
-### Controllers
+Management (Actuator) endpoints are on a separate port:
 
-#### 1. GreetingController
-**Base Path:** `/api/greeting/`
+```
+http://localhost:9001
+```
 
-Routes requests to `GreetingController` for greeting and departure operations. Supports two versions via content negotiation.
+## Media Type Format
 
-#### 2. DepartingController
-**Base Path:** `/api/departing/`
-
-Handles departure messages. Currently only supports v1.
-
-## Content Negotiation Strategy
-
-The API uses the `Accept` header to determine which version of the response to return. This allows multiple API versions to coexist on the same endpoint URL.
-
-**Media Type Format:**
 ```
 application/vnd.flipfoundry.{resource}.v{N}+json
 ```
 
-**Examples:**
-- `application/vnd.flipfoundry.greeting.v1+json` → GreetingDTO (deprecated)
-- `application/vnd.flipfoundry.greeting.v2+json` → GreetingDTOV2 (current)
-- `application/vnd.flipfoundry.departing.v1+json` → DepartDTO
-
 ---
 
-## GreetingController Endpoints
+## GreetingController — `/flip/greeting/`
 
-### GET /api/greeting/greet
+### GET /flip/greeting/greet
 
-The greeting endpoint with support for V1 and V2 API versions.
+**Query Parameters:** `name` (optional, defaults to `"World"`)
 
-**Query Parameters:**
-- `name` (optional): Name to greet. Defaults to "World"
+#### V1 — Deprecated
 
-#### V1 - Deprecated Version
-
-**Media Type:** `application/vnd.flipfoundry.greeting.v1+json`
-
-**Request:**
 ```bash
-curl -X GET "http://localhost:8080/api/greeting/greet?name=Alice" \
+curl -X GET "http://localhost:8700/flip/greeting/greet?name=Alice" \
   -H "Accept: application/vnd.flipfoundry.greeting.v1+json"
 ```
 
-**Response Structure:**
+Response:
+
 ```json
-{
-  "id": 1,
-  "content": "Hello, Alice!"
-}
+{ "id": 1, "content": "Hello, Alice!" }
 ```
 
-**Fields:**
-- `id`: Counter that increments with each request (v1 specific)
-- `content`: Greeting message
+#### V2 — Current
 
-**Request Variants:**
-
-With default name:
 ```bash
-curl -X GET "http://localhost:8080/api/greeting/greet" \
-  -H "Accept: application/vnd.flipfoundry.greeting.v1+json"
-```
-
-With pretty-printed JSON:
-```bash
-curl -s "http://localhost:8080/api/greeting/greet?name=Alice" \
-  -H "Accept: application/vnd.flipfoundry.greeting.v1+json" | jq
-```
-
-#### V2 - Current Version
-
-**Media Type:** `application/vnd.flipfoundry.greeting.v2+json`
-
-**Request:**
-```bash
-curl -X GET "http://localhost:8080/api/greeting/greet?name=Bob" \
+curl -X GET "http://localhost:8700/flip/greeting/greet?name=Alice" \
   -H "Accept: application/vnd.flipfoundry.greeting.v2+json"
 ```
 
-**Response Structure:**
+Response:
+
 ```json
-{
-  "content": "Hello, Bob!"
-}
+{ "content": "Hello, Alice!" }
 ```
 
-**Fields:**
-- `content`: Greeting message (simplified, no counter)
+V2 removes the `id` counter. See [API Versioning](./API-VERSIONING.md) and [Deprecation Strategy](./DEPRECATION.md).
 
-**Note:** V2 removes the `id` counter field for a simplified response structure.
-
-**Request Variants:**
-
-With default name:
-```bash
-curl -X GET "http://localhost:8080/api/greeting/greet" \
-  -H "Accept: application/vnd.flipfoundry.greeting.v2+json"
-```
-
-#### Comparing V1 vs V2
-
-Run both to see the difference:
+#### Compare Versions
 
 ```bash
-echo "=== V1 (Deprecated) ==="
-curl -s "http://localhost:8080/api/greeting/greet?name=Test" \
+echo "=== V1 (Deprecated) ===" && \
+curl -s "http://localhost:8700/flip/greeting/greet?name=Test" \
   -H "Accept: application/vnd.flipfoundry.greeting.v1+json" | jq
 
-echo ""
-echo "=== V2 (Current) ==="
-curl -s "http://localhost:8080/api/greeting/greet?name=Test" \
+echo "=== V2 (Current) ===" && \
+curl -s "http://localhost:8700/flip/greeting/greet?name=Test" \
   -H "Accept: application/vnd.flipfoundry.greeting.v2+json" | jq
 ```
 
 ---
 
-### GET /api/greeting/depart (Deprecated)
+## DepartingController — `/flip/departing/`
 
-**Media Type:** `application/vnd.flipfoundry.greeting.v1+json`
+### GET /flip/departing/depart
 
-**Status:** DEPRECATED - Use `/api/departing/depart` instead
-
-**Request:**
 ```bash
-curl -X GET "http://localhost:8080/api/greeting/depart" \
-  -H "Accept: application/vnd.flipfoundry.greeting.v1+json"
-```
-
-**Response Structure:**
-```json
-{
-  "message": "Goodbye",
-  "timestamp": "2024-01-15 14:30:45"
-}
-```
-
----
-
-## DepartingController Endpoints
-
-### GET /api/departing/depart
-
-The current location for departure messages.
-
-**Media Type:** `application/vnd.flipfoundry.departing.v1+json`
-
-**Request:**
-```bash
-curl -X GET "http://localhost:8080/api/departing/depart" \
+curl -X GET "http://localhost:8700/flip/departing/depart" \
   -H "Accept: application/vnd.flipfoundry.departing.v1+json"
 ```
 
-**Response Structure:**
+Response:
+
 ```json
-{
-  "message": "Goodbye",
-  "timestamp": "2024-01-15 14:30:45"
-}
-```
-
-**Fields:**
-- `message`: Departure message
-- `timestamp`: Server timestamp when request was processed
-
-**With pretty-print:**
-```bash
-curl -s "http://localhost:8080/api/departing/depart" \
-  -H "Accept: application/vnd.flipfoundry.departing.v1+json" | jq
+{ "message": "Goodbye", "timestamp": "2026-01-15 14:30:45" }
 ```
 
 ---
 
-## Content Negotiation Edge Cases
-
-### Default Behavior (No Accept Header)
-
-If no `Accept` header is provided, the server will use its default media type:
+## Actuator / Health
 
 ```bash
-curl -X GET "http://localhost:8080/api/greeting/greet?name=NoHeader"
+# Aggregate health
+curl http://localhost:9001/actuator/health | jq
+
+# Kubernetes probes
+curl http://localhost:9001/actuator/health/liveness
+curl http://localhost:9001/actuator/health/readiness
+
+# Prometheus metrics
+curl http://localhost:9001/actuator/prometheus
 ```
 
-### Incompatible Accept Header
+---
+
+## Edge Cases
+
+### No Accept Header
+
+The server returns its lowest-priority registered media type. Always supply the `Accept` header explicitly.
+
+```bash
+curl "http://localhost:8700/flip/greeting/greet?name=Test"
+```
+
+### Unsupported Media Type → 406
+
+```bash
+curl "http://localhost:8700/flip/greeting/greet" \
+  -H "Accept: application/json"
+# → 406 Not Acceptable
+```
+
+### Pretty-Print with jq
+
+```bash
+curl -s "http://localhost:8700/flip/greeting/greet?name=Alice" \
+  -H "Accept: application/vnd.flipfoundry.greeting.v2+json" | jq
+```
 
 If you specify a media type that doesn't match any endpoint version:
 

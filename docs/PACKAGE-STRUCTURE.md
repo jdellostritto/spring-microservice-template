@@ -1,15 +1,14 @@
 # Package Structure
 
-This document describes the package hierarchy and architectural layers used in the spring-microservice-template.
+> **Convention:** Organize by functional domain, not technical layer. All application code lives under `com.flipfoundry.tutorial.application`. Web, service, repository, and event packages are siblings — not nested by type.
 
 ## Overview
 
-The project follows a **layered architecture** organized by functional domain rather than technical layer. This structure:
+The project uses a **domain-first** layered structure. Benefits:
 
-- Improves scalability as the codebase grows
-- Isolates concerns by feature
-- Makes dependencies explicit
-- Facilitates testing and refactoring
+- Features are co-located — easier to reason about and test
+- Dependencies between layers are explicit and enforced
+- Scales cleanly: adding a feature means adding packages, not spreading files across the tree
 
 ## Package Hierarchy
 

@@ -1,10 +1,10 @@
-# Custom Metrics Guide
+# Custom Metrics
 
-This document describes how custom metrics are implemented and can be extended in the Spring Microservice Template.
+> **Convention:** All custom metrics are registered via `MetricsRegistry` using Micrometer (Counter, Timer, Gauge). Recording is handled by `MetricsAspect` AOP — no manual instrumentation in business code. All metrics are scraped from `/actuator/prometheus`.
 
 ## Overview
 
-Custom metrics are implemented using **Micrometer**, Spring Boot's metrics abstraction layer, which automatically integrates with OpenTelemetry. All metrics are exposed via the `/actuator/prometheus` endpoint and collected by the Grafana Alloy collector.
+Custom metrics use **Micrometer** as the abstraction layer, which integrates transparently with OpenTelemetry and Prometheus. All metrics flow: controller → AOP aspect → `MetricsRegistry` → `/actuator/prometheus` → Grafana Alloy → Grafana.
 
 ## Architecture
 

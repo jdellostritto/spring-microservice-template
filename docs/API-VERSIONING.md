@@ -1,15 +1,15 @@
 # API Versioning
 
-This project implements API versioning using content-negotiation with custom media types.
+> **Convention:** Version APIs via `Accept` header content negotiation — never via URL path segments. Format: `application/vnd.flipfoundry.{resource}.v{N}+json`
 
 ## Overview
 
-Versioning is implemented via **content-negotiation** using Accept headers rather than URL-based versioning, allowing:
+Versioning via content negotiation means:
 
-- Clean URIs without version numbers
-- Multiple API versions running simultaneously
-- Graceful deprecation and migration paths
-- Clear API evolution tracking
+- URIs stay clean and stable across versions
+- Multiple versions run simultaneously on the same endpoint
+- Clients opt-in to upgrades by changing their `Accept` header
+- Versions deprecate and disappear without URL churn
 
 ## Versioning Strategy
 

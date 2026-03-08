@@ -54,6 +54,9 @@ dependencies {
      /* Logging */
     implementation 'org.springframework.boot:spring-boot-starter-logging'
 
+    /* Kafka producer module */
+    implementation project(':modules:kafka-producer')
+
     /* test     */
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
@@ -62,10 +65,10 @@ dependencies {
 jib {
     from {
         //Option 1: Alpine base image from GHCR (lightweight, recommended for production)
-        image = "ghcr.io/jdellostritto/docker-jdk-base/jdk-alpine:latest"
+        //image = "ghcr.io/jdellostritto/docker-jdk-base/jdk-alpine:latest"
 
         //Option 2: Ubuntu base image from GHCR (broader package availability)
-        //image = "ghcr.io/jdellostritto/docker-jdk-base/jdk-ubuntu:latest"
+        image = "ghcr.io/jdellostritto/docker-jdk-base/jdk-ubuntu:latest"
     }
     to {
         image = "ghcr.io/jdellostritto/spring-microservice-template"

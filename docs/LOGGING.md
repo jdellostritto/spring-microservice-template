@@ -1,16 +1,15 @@
 # Logging Conventions
 
-This project uses Logback with profile-based configuration for environment-specific behavior.
+> **Convention:** Async Logback appenders with UTC timestamps and MDC `traceId` correlation. Verbosity is profile-driven: DEBUG+file in `default`, console-only ERROR in `deploy`, no file I/O in `test`.
 
 ## Overview
 
-- **Three deployment profiles** control logging verbosity based on environment
-- **Namespace-filtered logging** separates application logs from framework logs
-- **UTC timestamps** ensure consistency across distributed systems
-- **Asynchronous appenders** prevent logging from impacting application latency
-- **Correlation ID support** enables distributed tracing across microservices
-- **Separate error logs** provide dedicated operational visibility
-- **Tiered retention** balances compliance needs with storage costs
+- **Profile-driven verbosity** — behavior changes per environment without code changes
+- **Async appenders** — all writes are non-blocking to prevent latency spikes
+- **UTC timestamps** — consistent across distributed systems and time zones
+- **MDC `traceId`** — correlates logs across service boundaries
+- **Separate error log** — dedicated file for ERROR-level events with 90-day retention
+- **No file logging in `deploy`** — cloud-native stdout-only for log aggregator compatibility
 
 ## Profiles
 

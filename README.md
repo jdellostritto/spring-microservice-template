@@ -1,194 +1,90 @@
 # Spring Microservice Template
 
-A production-ready Spring Boot microservice template with enterprise-grade patterns, quality gates, containerization, and comprehensive CI/CD integration.
+[![Build and Test](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml)
+[![SonarQube Analysis](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml)
+[![Docker Build](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml)
+[![Javadocs](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/javadoc.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/javadoc.yml)
+[![OpenAPI](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/openapi.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/openapi.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=jdellostritto_spring-microservice-template&metric=alert_status)](https://sonarcloud.io/project/overview?id=jdellostritto_spring-microservice-template)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jdellostritto_spring-microservice-template&metric=coverage)](https://sonarcloud.io/project/overview?id=jdellostritto_spring-microservice-template)
+[![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-> **Quick Links:** [🚀 Getting Started](#quick-start) • [📚 Conventions](#conventions) • [🔧 Setup](#setup) • [📖 Documentation](#documentation)
+Production-ready Spring Boot microservice template demonstrating enterprise patterns and conventions.
 
-## Overview
+---
 
-This project demonstrates enterprise conventions and patterns for building scalable, maintainable microservices:
+## Conventions
 
-✅ **API Versioning** - Content-negotiation with custom media types  
-✅ **OpenAPI/Swagger** - Auto-generated API specs published to GitHub Releases  
-✅ **Javadocs** - Published to GitHub Pages  
-✅ **Code Quality** - SonarQube integration for continuous quality gates  
-✅ **Test Coverage** - JaCoCo with comprehensive test suites  
-✅ **Logging** - Profile-based, structured logging with correlation IDs  
-✅ **Containerization** - Docker support via Jib for optimized image builds  
-✅ **CI/CD** - Complete GitHub Actions workflows for builds, releases, and deployment  
+| Convention | Summary |
+|---|---|
+| [API Versioning](./docs/API-VERSIONING.md) | Content-negotiation via `Accept` header — never via URL path segments |
+| [URI Design](./docs/URI-CONVENTIONS.md) | RESTful paths under `/flip/{resource}/` namespace, HTTP verbs for operations |
+| [Package Structure](./docs/PACKAGE-STRUCTURE.md) | Layered architecture organized by functional domain, not technical layer |
+| [Logging](./docs/LOGGING.md) | Async Logback with UTC timestamps, MDC `traceId`, profile-driven verbosity |
+| [Custom Metrics](./docs/CUSTOM_METRICS.md) | Micrometer counters/timers via AOP, exposed at `/actuator/prometheus` |
+| [Deprecation Strategy](./docs/DEPRECATION.md) | 6-month minimum notice with `@Deprecated`, `Sunset` headers, `forRemoval` flag |
+| [Kubernetes Probes](./docs/KUBERNETES-PROBES.md) | Dedicated `/liveness` and `/readiness` endpoints — no infra checks on liveness |
+| [CI/CD Workflows](./docs/GITHUB_ACTIONS_SETUP.md) | Five GitHub Actions workflows: build, Sonar, Docker, Javadoc, OpenAPI |
+| [Endpoint Testing](./docs/CURL-TESTING.md) | cURL examples for content-negotiated versioned API endpoints |
+| [Event / Data Bus](./docs/EVENT-BUS.md) | Reactive Kafka producer module — Protobuf schemas, idempotent delivery, profile-gated activation |
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-
-- Java 21
-- Gradle 9.2.0
-- Docker (optional, for container builds)
-
-### Installation
-
 ```bash
-# Clone the repository
 git clone https://github.com/jdellostritto/spring-microservice-template.git
 cd spring-microservice-template
-
-# Build the project
-make build
-
-# Run locally
 make bootrun
 ```
 
-**Access the application:**
-
-- Application: `http://localhost:8700`
-- Swagger UI: `http://localhost:8700/test/index.html`
-- Actuator: `http://localhost:9001/actuator/health`
-
----
-
-## Available Commands
-
-### Build & Test
-
-```bash
-make build          # Build the project with tests
-make test           # Run test suite
-make clean          # Clean build artifacts
-make check          # Run code quality checks
-```
-
-### Documentation
-
-```bash
-make javadoc        # Generate Javadocs (publishes to GitHub Pages)
-make openapi        # Extract OpenAPI spec (publishes to GitHub Releases)
-```
-
-### Run & Deploy
-
-```bash
-make bootrun        # Run Spring Boot application locally
-make dbuild_local   # Build Docker image locally
-make dbuild_registry  # Build and push Docker image to registry
-```
-
-### Analysis
-
-```bash
-make sonar          # Run SonarQube analysis
-```
+| URL | Purpose |
+|---|---|
+| `http://localhost:8700` | Application |
+| `http://localhost:8700/test/index.html` | Swagger UI |
+| `http://localhost:9001/actuator/health` | Health |
+| `http://localhost:9001/actuator/prometheus` | Metrics |
 
 ---
 
-## Documentation
+## Commands
 
-### 📖 Full Documentation
-
-Detailed guides for all conventions and integrations:
-
-- **[Logging Conventions](./docs/LOGGING.md)** - Profile-based configuration, log formats, appender strategies
-- **[API Versioning](./docs/API-VERSIONING.md)** - Content-negotiation, media types, version management
-- **[Package Structure](./docs/PACKAGE-STRUCTURE.md)** - Recommended package hierarchy and organization
-- **[URI Conventions](./docs/URI-CONVENTIONS.md)** - RESTful path patterns and naming
-- **[Deprecation Strategy](./docs/DEPRECATION.md)** - How to deprecate and evolve APIs
-- **[Custom Metrics](./docs/CUSTOM_METRICS.md)** - Micrometer-based custom metrics, AOP recording, Prometheus integration
-- **[cURL Testing](./docs/CURL-TESTING.md)** - Testing endpoints with cURL examples
-- **[GitHub Actions Setup](./docs/GITHUB_ACTIONS_SETUP.md)** - CI/CD pipeline configuration and automation
-- **[Observability Stack](./observability-stack/README.md)** - OpenTelemetry, Prometheus, Grafana, Tempo, Loki setup and usage
-
-### 🔗 External Resources
-
-- **Swagger UI (Local)**: `http://localhost:8700/test/index.html`
-- **OpenAPI Spec (GitHub Releases)**: [Latest Release](https://github.com/jdellostritto/spring-microservice-template/releases/latest)
-- **Javadocs (GitHub Pages)**: [GitHub Pages Site](https://jdellostritto.github.io/spring-microservice-template/)
-- **SonarQube Dashboard**: [SonarCloud Project](https://sonarcloud.io/project/overview?id=jdellostritto_spring-microservice-template)
+| Command | Action |
+|---|---|
+| `make build` | Compile and run tests |
+| `make test` | Run test suite |
+| `make clean` | Remove build artifacts |
+| `make bootrun` | Start application locally |
+| `make dbuild-local` | Build Docker image locally |
+| `make up-stack` | Start full observability stack (Docker Compose) |
+| `make down-stack` | Stop observability stack |
+| `make sonar` | Run SonarQube analysis |
+| `make javadoc` | Generate and publish Javadocs |
+| `make openapi` | Generate and archive OpenAPI spec |
 
 ---
 
-## CI/CD Workflows
-
-All CI/CD workflows are automated via GitHub Actions:
+## Workflows
 
 | Workflow | Trigger | Output |
-|----------|---------|--------|
-| **Build & Test** | Push to any branch | Test results, coverage reports |
-| **SonarQube Analysis** | Push to master | Code quality gates, metrics |
-| **Javadoc Generation** | Push to master | Published to GitHub Pages |
-| **OpenAPI Publishing** | Push to master | Released on GitHub Releases |
-| **Docker Build** | Push to master | Container image to registry |
+|---|---|---|
+| [![Build and Test](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml) | Push / PR → `master`, `develop` | Test results, JaCoCo coverage |
+| [![SonarQube Analysis](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml) | Push / PR → `master`, `develop` | Quality gate, coverage metrics |
+| [![Docker Build](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml) | Push → `master` | `ghcr.io/jdellostritto/spring-microservice-template` |
+| [![Javadocs](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/javadoc.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/javadoc.yml) | Push → `master` | [GitHub Pages](https://jdellostritto.github.io/spring-microservice-template/) |
+| [![OpenAPI](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/openapi.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/openapi.yml) | Push → `master`, `develop` | Artifact: `openapi-spec` |
 
 ---
 
-## Setup
+## Stack
 
-### Prerequisites
-
-```shell
-gradle wrapper --gradle-version 9.2.0
-```
-
-### Project Structure
-
-```text
-spring-microservice-template/
-├── src/
-│   ├── main/
-│   │   ├── java/com/flipfoundry/tutorial/application/
-│   │   │   ├── web/controller/           # REST Controllers
-│   │   │   ├── web/dto/                  # Data Transfer Objects
-│   │   │   ├── config/                   # Spring Configuration
-│   │   │   └── utils/                    # Utilities
-│   │   └── resources/
-│   │       ├── application.yml           # Main configuration
-│   │       ├── application-*.yml         # Profile configs
-│   │       └── logback-spring.xml        # Logging config
-│   └── test/
-│       ├── java/                         # Integration tests
-│       └── resources/
-└── .github/workflows/                    # CI/CD workflows
-    ├── build.yml                         # Build & test
-    ├── sonar.yml                         # Code quality
-    ├── javadoc.yml                       # Javadoc publishing
-    └── openapi.yml                       # OpenAPI publishing
-```
-
-### Key Technologies
-
-- **Spring Boot 3.5.7** - Modern Spring framework
-- **Java 21** - Latest LTS version
-- **Gradle 9.2.0** - Dependency management and build
-- **Springdoc OpenAPI 2.6.0** - Automatic API documentation
-- **JaCoCo** - Code coverage
-- **SonarQube** - Code quality analysis
-- **Jib** - Container image building
-- **Docker** - Containerization
+- **Spring Boot 3.5.8** · Java 21 · Gradle 9.2 · Spring WebFlux (reactive)
+- **Jib** container builds → GitHub Container Registry (GHCR)
+- **Kafka** (Apache KRaft) · Reactive producer (`reactor-kafka`) · **Protobuf 3** event schemas
+- **OpenTelemetry** · Grafana Alloy · Prometheus · Grafana · Tempo · Loki
+- **JaCoCo** coverage · SonarCloud quality gates · Springdoc OpenAPI
 
 ---
 
-## Contributing
-
-This project demonstrates enterprise patterns and conventions. When contributing:
-
-1. Follow the established [conventions](#conventions)
-2. Maintain test coverage above 80%
-3. Ensure SonarQube quality gates pass
-4. Update relevant documentation
-
----
-
-## License
-
-Apache 2.0 - See LICENSE file for details
-
----
-
-## Support
-
-For questions or issues:
-
-- 📝 Open an issue on GitHub
-- 💬 Check the [Documentation](#documentation) section
-- 🔍 Review the code examples in `src/`
+**[Javadocs](https://jdellostritto.github.io/spring-microservice-template/)** &nbsp;·&nbsp; **[SonarCloud](https://sonarcloud.io/project/overview?id=jdellostritto_spring-microservice-template)** &nbsp;·&nbsp; **[Latest Release](https://github.com/jdellostritto/spring-microservice-template/releases/latest)**

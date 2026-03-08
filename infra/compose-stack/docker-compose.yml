@@ -9,6 +9,7 @@ services:
       OTEL_LOGS_EXPORTER: otlp
       OTEL_RESOURCE_ATTRIBUTES: "service.name=spring-microservice-template,service.version=0.0.1-SNAPSHOT"
       SPRING_PROFILES_ACTIVE: deploy
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     #volumes:
     #  - ./build/logs:/usr/app/logs:rw
     ports:
@@ -16,11 +17,46 @@ services:
       - "9001:9001"
     depends_on:
       - collector
+      - kafka
 
+  # ---------------------------------------------------------------------------
+  # Kafka (KRaft mode — no Zookeeper)
+  # ---------------------------------------------------------------------------
+  kafka:
+    container_name: kafka
+    image: apache/kafka:3.7.1
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9095:9092"
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    ports:
+      - "8090:8080"
+    depends_on:
+      - kafka
+
+  # ---------------------------------------------------------------------------
+  # Observability stack
+  # ---------------------------------------------------------------------------
   collector:
     container_name: collector
-    #image: otel/opentelemetry-collector-contrib:0.104.0-arm64
-    image: grafana/alloy:latest 
+    image: grafana/alloy:latest
     command:
       - "run"
       - "/etc/alloy/config.alloy"
@@ -33,11 +69,11 @@ services:
       - "4317"
       - "4318"
     ports:
-      - "12345:12345" #Alloy UI
-      - "4317:4317" # OTLP gRPC receiver
-      - "4318:4318" # OTLP HTTP receiver
-      - "8888" # Prometheus exporter metric
-      - "8889" # Prometheus exporter metric
+      - "12345:12345" # Alloy UI
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8888"        # Prometheus exporter metric
+      - "8889"        # Prometheus exporter metric
     environment:
       - AGENT_MODE=flow
     depends_on:

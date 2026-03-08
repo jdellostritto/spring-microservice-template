@@ -1,17 +1,14 @@
 # URI Conventions
 
-This document describes the URI path conventions and RESTful best practices used in the spring-microservice-template.
+> **Convention:** All URIs follow `/{namespace}/{resource}/{id?}/{action?}`. Use HTTP methods as verbs — avoid encoding operations in the path. Plural resource names. Action segments only for non-CRUD state transitions.
 
 ## Overview
 
-URIs follow a consistent pattern that emphasizes readability, predictability, and REST principles:
-
-- Base path: `/flip/{resource}/`
-- RESTful verbs via HTTP methods (GET, POST, PUT, DELETE)
-- Resource-first naming
-- Action-based endpoints only when necessary
-- Plural resource names
-- Hierarchical relationships
+- Base namespace: `/flip/{resource}/`
+- HTTP methods carry the verb (GET, POST, PUT, PATCH, DELETE)
+- Resources are plural nouns: `greetings`, `orders`, `users`
+- Action segments used sparingly: only when no HTTP method maps cleanly (e.g., `/ship`, `/verify-email`)
+- No `/list`, `/get`, `/create`, `/update`, `/delete` in paths
 
 ## Base URI Pattern
 

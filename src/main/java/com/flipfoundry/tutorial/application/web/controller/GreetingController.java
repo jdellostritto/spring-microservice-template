@@ -1,7 +1,9 @@
 package com.flipfoundry.tutorial.application.web.controller;
 
+import com.flipfoundry.tutorial.application.events.GreetingEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,6 +39,9 @@ public class GreetingController {
 
     private static final Logger logger = LoggerFactory.getLogger(GreetingController.class);
 
+    @Autowired
+    private GreetingEventPublisher eventPublisher;
+
     /**
      * A Simple template string that is formatted with
      * another string.
@@ -65,6 +70,11 @@ public class GreetingController {
             logger.info("Greeting request received for name: {}", name);
             String greeting = String.format(TEMPLATE, name);
             logger.debug("Greeting generated: {}", greeting);
+            eventPublisher.publishGreeting(name, greeting, "en")
+                 .subscribe(
+                     meta -> logger.debug("GreetingEvent published for {}", name),
+                     err  -> logger.error("Failed to publish GreetingEvent for {}", name, err)
+                 );
             return Mono.just( new GreetingDTOV2(greeting));
         } catch (Exception e) {
             logger.error("Error processing greeting request for name: {}", name, e);
