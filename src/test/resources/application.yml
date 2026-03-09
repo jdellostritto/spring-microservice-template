@@ -10,6 +10,12 @@ kafka:
   producer:
     enabled: false
 
+# Disable OpenTelemetry SDK in tests - prevents AbstractMethodError from
+# OTel version mismatch in the Logback bridge
+otel:
+  sdk:
+    disabled: true
+
 # Enable OpenAPI in tests
 springdoc:
   version: 0.0.1-SNAPSHOT
