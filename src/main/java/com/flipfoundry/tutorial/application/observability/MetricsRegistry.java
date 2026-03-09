@@ -23,6 +23,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MetricsRegistry {
 
+    private static final String TAG_CONTROLLER = "controller";
+    private static final String TAG_GREETING = "greeting";
+    private static final String TAG_DEPARTING = "departing";
+
     private final MeterRegistry meterRegistry;
 
     // =====================================================
@@ -60,18 +64,18 @@ public class MetricsRegistry {
     private void initializeGreetingMetrics() {
         greetingRequests = Counter.builder("greeting.requests.total")
             .description("Total number of greeting requests")
-            .tag("controller", "greeting")
+            .tag(TAG_CONTROLLER, TAG_GREETING)
             .register(meterRegistry);
 
         greetingRequestDuration = Timer.builder("greeting.requests.duration")
             .description("Duration of greeting requests")
-            .tag("controller", "greeting")
+            .tag(TAG_CONTROLLER, TAG_GREETING)
             .publishPercentiles(0.5, 0.95, 0.99)
             .register(meterRegistry);
 
         greetingErrors = Counter.builder("greeting.errors.total")
             .description("Total number of greeting errors")
-            .tag("controller", "greeting")
+            .tag(TAG_CONTROLLER, TAG_GREETING)
             .register(meterRegistry);
     }
 
@@ -114,18 +118,18 @@ public class MetricsRegistry {
     private void initializeDepartingMetrics() {
         departingRequests = Counter.builder("departing.requests.total")
             .description("Total number of departing requests")
-            .tag("controller", "departing")
+            .tag(TAG_CONTROLLER, TAG_DEPARTING)
             .register(meterRegistry);
 
         departingRequestDuration = Timer.builder("departing.requests.duration")
             .description("Duration of departing requests")
-            .tag("controller", "departing")
+            .tag(TAG_CONTROLLER, TAG_DEPARTING)
             .publishPercentiles(0.5, 0.95, 0.99)
             .register(meterRegistry);
 
         departingErrors = Counter.builder("departing.errors.total")
             .description("Total number of departing errors")
-            .tag("controller", "departing")
+            .tag(TAG_CONTROLLER, TAG_DEPARTING)
             .register(meterRegistry);
     }
 
