@@ -22,7 +22,7 @@ class OpenApiTests {
 	private WebTestClient webTestClient;
 
 	@Test
-	public void openApiJsonShouldBeAccessible() {
+	void openApiJsonShouldBeAccessible() {
 		webTestClient.get()
 			.uri("/v3/api-docs")
 			.exchange()
@@ -35,7 +35,7 @@ class OpenApiTests {
 	}
 
 	@Test
-	public void openApiJsonShouldReturnValidJson() {
+	void openApiJsonShouldReturnValidJson() {
 		webTestClient.get()
 			.uri("/v3/api-docs")
 			.exchange()
@@ -51,7 +51,7 @@ class OpenApiTests {
 	}
 
 	@Test
-	public void openApiJsonShouldContainEndpoints() {
+	void openApiJsonShouldContainEndpoints() {
 		webTestClient.get()
 			.uri("/v3/api-docs")
 			.exchange()
@@ -61,7 +61,7 @@ class OpenApiTests {
 	}
 
 	@Test
-	public void openApiJsonShouldContainApiInfo() {
+	void openApiJsonShouldContainApiInfo() {
 		webTestClient.get()
 			.uri("/v3/api-docs")
 			.exchange()

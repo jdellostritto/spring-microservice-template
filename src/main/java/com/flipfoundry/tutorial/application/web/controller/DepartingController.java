@@ -3,7 +3,6 @@ package com.flipfoundry.tutorial.application.web.controller;
 import com.flipfoundry.tutorial.application.events.GreetingEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,8 +29,11 @@ public class DepartingController {
 
     private static final Logger logger = LoggerFactory.getLogger(DepartingController.class);
 
-    @Autowired
-    private GreetingEventPublisher eventPublisher;
+    private final GreetingEventPublisher eventPublisher;
+
+    public DepartingController(GreetingEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
 
     /**
      * <p>Depart endpoint. Returns departure information with timestamp.</p>
@@ -58,7 +60,6 @@ public class DepartingController {
                  );
             return Mono.just( new DepartDTO("Goodbye", formattedTimestamp));
         } catch (Exception e) {
-            logger.error("Error processing departing request", e);
             throw new DepartingException("Failed to process departing request", e);
         }
     }

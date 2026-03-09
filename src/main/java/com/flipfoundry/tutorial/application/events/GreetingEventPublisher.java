@@ -6,7 +6,7 @@ import com.flipfoundry.tutorial.events.DepartingEvent;
 import com.flipfoundry.tutorial.events.GreetingEvent;
 import com.google.protobuf.Timestamp;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -29,12 +29,16 @@ import java.util.UUID;
 @Service
 public class GreetingEventPublisher {
 
-    /** Injected only when kafka.producer.enabled=true; null otherwise. */
-    @Autowired(required = false)
-    private EventProducer eventProducer;
+    private final KafkaProducerProperties kafkaProducerProperties;
 
-    @Autowired
-    private KafkaProducerProperties kafkaProducerProperties;
+    /** Null when kafka.producer.enabled=false — no EventProducer bean is registered. */
+    private final EventProducer eventProducer;
+
+    public GreetingEventPublisher(KafkaProducerProperties kafkaProducerProperties,
+                                  @Nullable EventProducer eventProducer) {
+        this.kafkaProducerProperties = kafkaProducerProperties;
+        this.eventProducer = eventProducer;
+    }
 
     /**
      * Publishes a {@link GreetingEvent} to the greeting-events topic.

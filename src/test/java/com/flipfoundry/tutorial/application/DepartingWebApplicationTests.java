@@ -19,7 +19,7 @@ public class DepartingWebApplicationTests {
 	private WebTestClient webClient;
 
 	@Test
-	public void departEndpointV1ShouldReturnContentAndDate() throws Exception {
+	void departEndpointV1ShouldReturnContentAndDate() {
 		this.webClient.get().uri("/flip/departing/depart")
 				.accept(MediaType.valueOf("application/vnd.flipfoundry.departing.v1+json"))
 				.exchange()
@@ -31,7 +31,7 @@ public class DepartingWebApplicationTests {
 	}
 
 	@Test
-	public void departEndpointV1ShouldReturn406WithBadAccept() throws Exception {
+	void departEndpointV1ShouldReturn406WithBadAccept() {
 		this.webClient.get().uri("/flip/departing/depart")
 				.accept(MediaType.valueOf("application/vnd.flipfoundry.foo.v1+json"))
 				.exchange()
@@ -39,7 +39,7 @@ public class DepartingWebApplicationTests {
 	}
 
 	@Test
-	public void departEndpointShouldHandleExceptionGracefully() throws Exception {
+	void departEndpointShouldHandleExceptionGracefully() {
 		// Test that exception handling doesn't break the endpoint - multiple consecutive requests should all succeed
 		for (int i = 0; i < 3; i++) {
 			this.webClient.get().uri("/flip/departing/depart")

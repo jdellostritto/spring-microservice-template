@@ -48,9 +48,9 @@ public class EventProducer {
      * @return a {@link Mono} completing with the {@link RecordMetadata} on success
      */
     public <T extends Message> Mono<RecordMetadata> send(String topic, String key, T event) {
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, key, event.toByteArray());
+        ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topic, key, event.toByteArray());
         return kafkaSender
-                .send(Mono.just(SenderRecord.create(record, key)))
+                .send(Mono.just(SenderRecord.create(producerRecord, key)))
                 .single()
                 .map(SenderResult::recordMetadata)
                 .doOnSuccess(meta -> log.debug(

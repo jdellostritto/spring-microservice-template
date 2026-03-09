@@ -19,7 +19,7 @@ public class GreetingWebApplicationTests {
 	private WebTestClient webClient;
 
 	@Test
-	public void greetEndpointV1ShouldReturnId() throws Exception {
+	void greetEndpointV1ShouldReturnId() {
 		this.webClient.get().uri("/flip/greeting/greet")
 				.accept(MediaType.valueOf("application/vnd.flipfoundry.greeting.v1+json"))
 				.exchange()
@@ -28,7 +28,7 @@ public class GreetingWebApplicationTests {
 				.jsonPath("$.id").exists();
 	}
 	@Test
-	public void greetEndpointV2ShouldNotReturnId() throws Exception {
+	void greetEndpointV2ShouldNotReturnId() {
 		this.webClient.get().uri("/flip/greeting/greet")
 				.accept(MediaType.valueOf("application/vnd.flipfoundry.greeting.v2+json"))
 				.exchange()
@@ -38,7 +38,7 @@ public class GreetingWebApplicationTests {
 	}
 
 	@Test
-	public void departEndpointShouldReturnAnEmptyDate() throws Exception {
+	void departEndpointShouldReturnAnEmptyDate() {
 		this.webClient.get().uri("/flip/greeting/depart")
 				.accept(MediaType.valueOf("application/vnd.flipfoundry.greeting.v1+json"))
 				.exchange()
@@ -51,7 +51,7 @@ public class GreetingWebApplicationTests {
 	}
 
 	@Test
-	public void departEndpointV1ShouldReturn406WithBadAccept() throws Exception {
+	void departEndpointV1ShouldReturn406WithBadAccept() {
 		this.webClient.get().uri("/flip/greeting/greet")
 				.accept(MediaType.valueOf("application/vnd.flipfoundry.foo.v1+json"))
 				.exchange()

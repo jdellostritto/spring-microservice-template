@@ -17,7 +17,7 @@ class SmokeTests {
 	private DepartingController dController;
 
 	@Test
-	public void contextLoads() throws Exception {
+	void contextLoads() {
 		assertThat(gController).isNotNull();
 		assertThat(dController).isNotNull();
 	}

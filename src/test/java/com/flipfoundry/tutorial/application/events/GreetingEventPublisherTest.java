@@ -4,7 +4,6 @@ import com.flipfoundry.tutorial.application.kafka.config.KafkaProducerProperties
 import com.flipfoundry.tutorial.application.kafka.producer.EventProducer;
 import com.flipfoundry.tutorial.events.DepartingEvent;
 import com.flipfoundry.tutorial.events.GreetingEvent;
-import com.google.protobuf.Message;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Test;
@@ -75,8 +74,7 @@ class GreetingEventPublisherTest {
 
     @Test
     void publishGreeting_withProducerDisabled_returnsEmptyMono() {
-        // Create a publisher with no EventProducer injected (simulates disabled flag)
-        GreetingEventPublisher disabledPublisher = new GreetingEventPublisher();
+        GreetingEventPublisher disabledPublisher = new GreetingEventPublisher(kafkaProducerProperties, null);
 
         StepVerifier.create(disabledPublisher.publishGreeting("Alice", "Hello, Alice!", "en"))
                 .verifyComplete();
@@ -111,7 +109,7 @@ class GreetingEventPublisherTest {
 
     @Test
     void publishDeparting_withProducerDisabled_returnsEmptyMono() {
-        GreetingEventPublisher disabledPublisher = new GreetingEventPublisher();
+        GreetingEventPublisher disabledPublisher = new GreetingEventPublisher(kafkaProducerProperties, null);
 
         StepVerifier.create(disabledPublisher.publishDeparting("Alice", "Goodbye!"))
                 .verifyComplete();

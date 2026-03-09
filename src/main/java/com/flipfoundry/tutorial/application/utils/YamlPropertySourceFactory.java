@@ -5,6 +5,7 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
+import org.springframework.lang.Nullable;
 
 import java.io.IOException;
 /**
@@ -21,13 +22,17 @@ import java.io.IOException;
 public class YamlPropertySourceFactory implements PropertySourceFactory {
 
     @Override
-    public PropertySource<?> createPropertySource(String name, EncodedResource encodedResource) throws IOException {
+    public PropertySource<?> createPropertySource(@Nullable String name, EncodedResource encodedResource) throws IOException {
         var factory = new YamlPropertiesFactoryBean();
         factory.setResources(encodedResource.getResource());
 
         var properties = factory.getObject();
 
-        return new PropertiesPropertySource(encodedResource.getResource().getFilename(), properties);
+        String sourceName = name != null ? name : encodedResource.getResource().getFilename();
+        if (sourceName == null) {
+            sourceName = "yamlPropertySource";
+        }
+        return new PropertiesPropertySource(sourceName, properties);
     }
 
     

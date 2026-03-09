@@ -18,12 +18,12 @@ class HttpRequestTests {
 	private TestRestTemplate restTemplate;
 
 	@Test
-	public void greetingShouldReturnDefaultMessage() throws Exception {
+	void greetingShouldReturnDefaultMessage() {
 		assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/flip/greeting/greet",
 				String.class)).contains("Hello, World");
 	}
 	@Test
-	public void departShouldReturnDefaultMessage() throws Exception {
+	void departShouldReturnDefaultMessage() {
 		assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/flip/departing/depart",
 				String.class)).contains("Goodbye");
 	}

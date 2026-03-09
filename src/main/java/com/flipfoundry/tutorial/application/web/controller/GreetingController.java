@@ -3,7 +3,6 @@ package com.flipfoundry.tutorial.application.web.controller;
 import com.flipfoundry.tutorial.application.events.GreetingEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,8 +38,15 @@ public class GreetingController {
 
     private static final Logger logger = LoggerFactory.getLogger(GreetingController.class);
 
-    @Autowired
-    private GreetingEventPublisher eventPublisher;
+    private final GreetingEventPublisher eventPublisher;
+
+    public GreetingController(GreetingEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    private static String sanitize(String input) {
+        return input == null ? null : input.replaceAll("[\r\n]", "");
+    }
 
     /**
      * A Simple template string that is formatted with
@@ -67,17 +73,16 @@ public class GreetingController {
     @GetMapping(value = "/greet", produces="application/vnd.flipfoundry.greeting.v2+json")
     public Mono<GreetingDTOV2> greetv2(@RequestParam(value = "name", defaultValue = "World") String name) {
         try {
-            logger.info("Greeting request received for name: {}", name);
+            logger.info("Greeting request received for name: {}", sanitize(name));
             String greeting = String.format(TEMPLATE, name);
             logger.debug("Greeting generated: {}", greeting);
             eventPublisher.publishGreeting(name, greeting, "en")
                  .subscribe(
-                     meta -> logger.debug("GreetingEvent published for {}", name),
-                     err  -> logger.error("Failed to publish GreetingEvent for {}", name, err)
+                     meta -> logger.debug("GreetingEvent published for {}", sanitize(name)),
+                     err  -> logger.error("Failed to publish GreetingEvent for {}", sanitize(name), err)
                  );
             return Mono.just( new GreetingDTOV2(greeting));
         } catch (Exception e) {
-            logger.error("Error processing greeting request for name: {}", name, e);
             throw new GreetingException("Failed to process greeting for: " + name, e);
         }
     }
@@ -96,12 +101,11 @@ public class GreetingController {
     @GetMapping(value = "/greet", produces="application/vnd.flipfoundry.greeting.v1+json")
     public Mono<GreetingDTO> greet(@RequestParam(value = "name", defaultValue = "World") String name) {
         try {
-            logger.warn("Deprecated v1 greeting endpoint called for name: {}", name);
+            logger.warn("Deprecated v1 greeting endpoint called for name: {}", sanitize(name));
             long count = counter.incrementAndGet();
             logger.debug("Request count: {}", count);
             return Mono.just( new GreetingDTO(count, String.format(TEMPLATE, name)));
         } catch (Exception e) {
-            logger.error("Error processing deprecated v1 greeting request for name: {}", name, e);
             throw new GreetingException("Failed to process v1 greeting for: " + name, e);
         }
     }
@@ -121,7 +125,6 @@ public class GreetingController {
             logger.error("Deprecated depart endpoint called - will be removed in future version");
             return Mono.just( new DepartDTO("Goodbye"));
         } catch (Exception e) {
-            logger.error("Error processing deprecated depart endpoint", e);
             throw new GreetingException("Failed to process depart request", e);
         }
     }
