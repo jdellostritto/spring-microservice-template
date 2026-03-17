@@ -1,5 +1,9 @@
 # Spring Microservice Template
 
+## 12-Factor App Compliance
+
+This template is designed to satisfy all twelve factors from [The Twelve-Factor App](https://12factor.net/) methodology, making it deployable on any cloud platform, Kubernetes cluster, or CI/CD pipeline without modification.
+
 [![Build and Test](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml)
 [![SonarQube Analysis](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml)
 [![Docker Build](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml)
@@ -74,6 +78,39 @@ make bootrun
 | [![Docker Build](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml) | Push → `master` | `ghcr.io/jdellostritto/spring-microservice-template` |
 | [![Javadocs](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/javadoc.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/javadoc.yml) | Push → `master` | [GitHub Pages](https://jdellostritto.github.io/spring-microservice-template/) |
 | [![OpenAPI](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/openapi.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/openapi.yml) | Push → `master`, `develop` | Artifact: `openapi-spec` |
+
+---
+
+## 12-Factor App Compliance
+
+This template is designed to satisfy all twelve factors from [The Twelve-Factor App](https://12factor.net/) methodology, making it deployable on any cloud platform, Kubernetes cluster, or CI/CD pipeline without modification.
+
+| Factor | Implementation |
+|---|---|
+| **I. Codebase** | Single Git repository; one codebase, many deploys. Environment differences are driven entirely by Spring profiles — the artifact never changes between dev, staging, and production. |
+| **II. Dependencies** | All runtime and build dependencies are declared explicitly in `build.gradle` with pinned versions. Jib packages the full JDK runtime into a self-contained OCI image — no implicit host-level dependencies. |
+| **III. Config** | Environment-specific values (`SERVER_PORT`, Kafka brokers, datasource URLs, secrets) are injected via environment variables or Kubernetes `ConfigMap`/`Secret`. `application.yml` defines safe defaults; nothing environment-specific is committed to the repo. |
+| **IV. Backing Services** | Kafka, databases, and observability backends (Prometheus, Loki, Tempo) are attached resources referenced by URL and credentials from config. Swapping or re-pointing a service requires only an environment variable change — no code change. |
+| **V. Build, Release, Run** | Gradle produces a reproducible JAR (build) → Jib assembles a tagged Docker image (release) → the image runs unmodified in any environment (run). GitHub Actions enforces this pipeline; no mutations occur at startup. |
+| **VI. Processes** | The application is stateless by design. The Spring WebFlux reactive pipeline holds no in-memory session or affinity state. Multiple instances run concurrently without coordination or shared local storage. |
+| **VII. Port Binding** | Spring Boot's embedded Netty exports HTTP on a configurable port (`SERVER_PORT`, default `8700`). The Actuator management port (`9001`) is separately bound. No external container or application server is required. |
+| **VIII. Concurrency** | The reactive (WebFlux) model achieves high concurrency on a minimal thread pool. Horizontal scaling is done by adding container replicas behind a load balancer — the application requires no changes to scale out. |
+| **IX. Disposability** | `server.shutdown=graceful` drains in-flight requests before the process exits. Jib's layered image format enables fast cold-starts. Reactive non-blocking I/O eliminates thread-per-request warm-up overhead. |
+| **X. Dev/Prod Parity** | `docker-compose.yml` runs the full observability stack (Kafka, Prometheus, Grafana, Loki, Tempo) locally with the same Docker image used in production. Spring profiles prevent environment-specific code paths from diverging. |
+| **XI. Logs** | Logback emits all output to `stdout` as structured text with UTC timestamps and MDC `traceId` correlation. No log files are written to disk. Grafana Alloy ships the log stream to Loki for aggregation, querying, and alerting. |
+| **XII. Admin Processes** | Administrative and operational tasks are surfaced through Spring Boot Actuator (`/actuator/health`, `/actuator/prometheus`, `/actuator/info`, `/actuator/metrics`) on a dedicated management port, isolating operational traffic from application traffic. |
+
+### DevOps Compatibility Summary
+
+| Concern | Capability |
+|---|---|
+| **Container-native** | Jib builds OCI images without a Docker daemon; no `Dockerfile` required for CI |
+| **Kubernetes-ready** | Dedicated `/liveness` and `/readiness` probe endpoints; graceful shutdown support; no sticky sessions |
+| **Observable by default** | Prometheus metrics at `/actuator/prometheus`; distributed traces via OpenTelemetry → Tempo; logs → Loki |
+| **Zero-downtime deploys** | Graceful shutdown + readiness probe ensures the load balancer routes away before the container stops |
+| **Secret management** | All credentials are environment-variable-driven; compatible with Vault, AWS Secrets Manager, and Kubernetes Secrets |
+| **Reproducible builds** | Gradle with a pinned wrapper version and locked dependency versions; Jib digest-tagged images |
+| **Automated quality gates** | SonarCloud quality gate and JaCoCo coverage enforced in CI before any merge to `master` |
 
 ---
 
