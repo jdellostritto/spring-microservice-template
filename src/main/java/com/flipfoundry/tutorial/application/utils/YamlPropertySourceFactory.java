@@ -27,6 +27,9 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
         factory.setResources(encodedResource.getResource());
 
         var properties = factory.getObject();
+        if (properties == null) {
+            throw new IOException("Failed to load YAML properties from resource: " + encodedResource.getResource().getFilename());
+        }
 
         String sourceName = name != null ? name : encodedResource.getResource().getFilename();
         if (sourceName == null) {

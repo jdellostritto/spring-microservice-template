@@ -73,7 +73,9 @@ public class GreetingController {
     @GetMapping(value = "/greet", produces="application/vnd.flipfoundry.greeting.v2+json")
     public Mono<GreetingDTOV2> greetv2(@RequestParam(value = "name", defaultValue = "World") String name) {
         try {
-            logger.info("Greeting request received for name: {}", sanitize(name));
+            if (logger.isInfoEnabled()) {
+                logger.info("Greeting request received for name: {}", sanitize(name));
+            }
             String greeting = String.format(TEMPLATE, name);
             logger.debug("Greeting generated: {}", greeting);
             eventPublisher.publishGreeting(name, greeting, "en")
@@ -101,7 +103,9 @@ public class GreetingController {
     @GetMapping(value = "/greet", produces="application/vnd.flipfoundry.greeting.v1+json")
     public Mono<GreetingDTO> greet(@RequestParam(value = "name", defaultValue = "World") String name) {
         try {
-            logger.warn("Deprecated v1 greeting endpoint called for name: {}", sanitize(name));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Deprecated v1 greeting endpoint called for name: {}", sanitize(name));
+            }
             long count = counter.incrementAndGet();
             logger.debug("Request count: {}", count);
             return Mono.just( new GreetingDTO(count, String.format(TEMPLATE, name)));
