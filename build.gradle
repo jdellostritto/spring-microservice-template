@@ -54,6 +54,12 @@ dependencies {
      /* Logging */
     implementation 'org.springframework.boot:spring-boot-starter-logging'
 
+    /* JPA + Hibernate */
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    /* PostgreSQL JDBC driver */
+    runtimeOnly 'org.postgresql:postgresql'
+
     /* Kafka producer module */
     implementation project(':modules:kafka-producer')
 
@@ -61,6 +67,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.apache.kafka:kafka-clients'
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 jib {
