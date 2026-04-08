@@ -12,6 +12,21 @@ jobs:
     permissions:
       contents: write
 
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,6 +37,15 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: gradle
+
+      - name: Set up application database
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -c "CREATE USER appuser WITH PASSWORD 'apppass';"
+          psql -h localhost -U postgres -c "CREATE DATABASE appdb;"
+          psql -h localhost -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE appdb TO appuser;"
+          psql -h localhost -U postgres -d appdb -c "GRANT ALL ON SCHEMA public TO appuser;"
 
       - name: Generate OpenAPI specification
         run: make openapi

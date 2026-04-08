@@ -3,9 +3,10 @@
 # Load environment variables from .env file if it exists
 -include .env
 
-# OS Detection: Use gradlew.bat on Windows, ./gradlew on Unix/Linux/Mac
+# GnuWin make 3.81 always uses cmd.exe for recipes — SHELL overrides are ignored.
+# On Windows, prefix gradlew with bash so cmd.exe can invoke it via Git Bash.
 ifeq ($(OS),Windows_NT)
-    GRADLEW := gradlew.bat
+    GRADLEW := bash ./gradlew
 else
     GRADLEW := ./gradlew
 endif

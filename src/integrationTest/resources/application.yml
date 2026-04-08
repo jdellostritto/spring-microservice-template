@@ -1,0 +1,32 @@
+# Integration test configuration.
+# Testcontainers @ServiceConnection overrides spring.datasource.* at runtime.
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+kafka:
+  producer:
+    enabled: false
+
+otel:
+  sdk:
+    disabled: true
+
+# Bind management to a random port so parallel test runs don't collide.
+management:
+  server:
+    port: 0
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

@@ -20,6 +20,10 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
 }
 
 repositories {
@@ -59,6 +63,9 @@ dependencies {
 
     /* PostgreSQL JDBC driver */
     runtimeOnly 'org.postgresql:postgresql'
+
+    /* Docker Compose support for local development (bootRun) */
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 
     /* Kafka producer module */
     implementation project(':modules:kafka-producer')
@@ -105,12 +112,25 @@ testing {
                 /* webflux  */
                 implementation 'org.springframework.boot:spring-boot-starter-webflux'
                 implementation 'org.springframework.boot:spring-boot-starter-test'
+                /* JPA — not inherited transitively from project() in test suites */
+                implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+                /* Testcontainers - real Postgres for integration tests */
+                implementation 'org.springframework.boot:spring-boot-testcontainers'
+                implementation 'org.testcontainers:junit-jupiter'
+                implementation 'org.testcontainers:postgresql'
+                /* Awaitility — for polling async fire-and-forget persistence */
+                implementation 'org.awaitility:awaitility'
             }
         }
     }
 }
 test {
     finalizedBy jacocoTestReport
+}
+
+// Wire integration tests into the check lifecycle so `make check` runs everything.
+check {
+    dependsOn integrationTest
 }
 jacocoTestReport {
     dependsOn test// tests are required to run before generating the report

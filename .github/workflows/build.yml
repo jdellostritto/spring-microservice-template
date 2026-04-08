@@ -22,11 +22,8 @@ jobs:
           distribution: 'temurin'
           cache: gradle
       
-      - name: Build with Gradle
-        run: make build
-      
-      - name: Run Tests
-        run: make test
+      - name: Build and Run All Tests
+        run: make check
       
       - name: Upload JaCoCo Coverage Reports
         if: always()
