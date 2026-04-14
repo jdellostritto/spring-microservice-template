@@ -202,5 +202,7 @@ openApi {
     waitTimeInSeconds = 30
     // Disable Spring Boot's Docker Compose auto-start — the forked process runs
     // from build/tmp/forkedSpringBootRun/ and cannot find compose.yaml there.
-    forkProperties = ["-Dspring.docker.compose.enabled=false"]
+    customBootRun {
+        jvmArgs = ["-Dspring.docker.compose.enabled=false"]
+    }
 }
