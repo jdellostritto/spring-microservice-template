@@ -1,9 +1,5 @@
 # Spring Microservice Template
 
-## 12-Factor App Compliance
-
-This template is designed to satisfy all twelve factors from [The Twelve-Factor App](https://12factor.net/) methodology, making it deployable on any cloud platform, Kubernetes cluster, or CI/CD pipeline without modification.
-
 [![Build and Test](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/build.yml)
 [![SonarQube Analysis](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/sonar.yml)
 [![Docker Build](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml/badge.svg)](https://github.com/jdellostritto/spring-microservice-template/actions/workflows/docker.yml)
@@ -15,6 +11,68 @@ This template is designed to satisfy all twelve factors from [The Twelve-Factor 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 Production-ready Spring Boot microservice template demonstrating enterprise patterns and conventions.
+
+---
+
+## Purpose & Audience
+
+This template is a **starting point for Java teams building cloud-native microservices**. It eliminates the boilerplate of setting up a production-grade service from scratch by providing a working reference implementation with:
+
+- Reactive, non-blocking HTTP via Spring WebFlux
+- Layered, domain-organized package structure
+- Out-of-the-box observability: metrics, distributed tracing, and structured logs
+- Kubernetes-ready health probes and graceful shutdown
+- Versioned REST API with content negotiation
+- Async Kafka event publishing via a reusable sub-module
+- Automated quality gates: SonarCloud, JaCoCo coverage, CI/CD pipelines
+
+The example domain is a **Greeting Service** — a deliberately simple use case that keeps the business logic out of the way so the infrastructure patterns remain the focus. To use this as a base for a real service, replace the greeting domain with your own (see [Customizing the Template](#customizing-the-template)).
+
+---
+
+## Architecture
+
+```text
+┌─────────────────────────────────────────────────────┐
+│                   HTTP Clients                      │
+└────────────────────┬────────────────────────────────┘
+                     │ :8700
+         ┌───────────▼───────────────────┐
+         │   Spring WebFlux (Netty)      │
+         │   GreetingController          │  ◄── versioned, content-negotiated
+         │   DepartingController         │
+         └───────┬───────────────┬───────┘
+                 │               │
+     ┌───────────▼───┐   ┌───────▼──────────────┐
+     │ Domain Service │   │ GreetingEventPublisher│──► Kafka (Protobuf)
+     └───────┬───────┘   └──────────────────────┘
+             │
+     ┌───────▼────────────────┐
+     │ GreetingPersistenceService│
+     └───────┬────────────────┘
+             │
+     ┌───────▼──────────┐
+     │    PostgreSQL     │
+     └──────────────────┘
+
+:9001 ──► Actuator (health, readiness, liveness, prometheus, info)
+          │
+          └──► Grafana Alloy ──► Prometheus · Tempo · Loki · Grafana
+```
+
+**Layer responsibilities:**
+
+| Layer | Package | Responsibility |
+|---|---|---|
+| Web | `web/controller/` | HTTP endpoints, request validation, response mapping |
+| DTO | `web/dto/` | API contract types (versioned) |
+| Exception handling | `web/exception/` | Global error handling and error response shaping |
+| Service | `dal/service/` | Business logic and persistence orchestration |
+| Repository | `dal/repository/` | Spring Data R2DBC / JPA repository interfaces |
+| Entity | `dal/entity/` | Database-mapped domain objects |
+| Events | `events/` | Reactive Kafka event publishing |
+| Observability | `observability/` | Micrometer metrics via AOP, OpenTelemetry config |
+| Config | `config/` | WebFlux, OpenAPI, and application configuration |
 
 ---
 
@@ -37,10 +95,23 @@ Production-ready Spring Boot microservice template demonstrating enterprise patt
 
 ## Quick Start
 
+**Prerequisites:** Java 21, Docker, Docker Compose, Make
+
 ```bash
 git clone https://github.com/jdellostritto/spring-microservice-template.git
 cd spring-microservice-template
 make bootrun
+```
+
+Verify the service is running:
+
+```bash
+# Greeting endpoint (v1)
+curl -H "Accept: application/vnd.flipfoundry.greeting.v1+json" \
+     "http://localhost:8700/flip/greeting/greet?name=Alice"
+
+# Health check
+curl http://localhost:9001/actuator/health
 ```
 
 | URL | Purpose |
@@ -49,6 +120,31 @@ make bootrun
 | `http://localhost:8700/test/index.html` | Swagger UI |
 | `http://localhost:9001/actuator/health` | Health |
 | `http://localhost:9001/actuator/prometheus` | Metrics |
+
+---
+
+## Project Structure
+
+```text
+spring-microservice-template/
+├── src/
+│   ├── main/java/com/flipfoundry/tutorial/application/
+│   │   ├── config/             # WebFlux and OpenAPI configuration
+│   │   ├── dal/                # Data access: entities, repositories, persistence services
+│   │   ├── events/             # Kafka event publishing
+│   │   ├── observability/      # Micrometer metrics (AOP-driven)
+│   │   ├── utils/              # Shared utilities
+│   │   └── web/                # Controllers, DTOs, exception handlers
+│   └── test/                   # Unit tests (Mockito, WebTestClient)
+├── modules/
+│   └── kafka-producer/         # Reusable reactive Kafka producer (Protobuf schemas)
+├── docs/                       # Detailed convention documentation
+├── infra/                      # Docker Compose, observability stack config
+├── bin/                        # Helper scripts
+├── build.gradle                # Dependency declarations
+├── Makefile                    # Build and operations targets
+└── compose.yaml                # Full local stack (Kafka, Postgres, Grafana, Loki, Tempo)
+```
 
 ---
 
@@ -69,6 +165,43 @@ make bootrun
 
 ---
 
+## Testing
+
+```bash
+make test          # Unit tests
+make build         # Compile + unit tests + JaCoCo coverage report
+```
+
+Tests use Mockito for unit-level isolation and `WebTestClient` for controller-layer tests. Coverage is enforced by JaCoCo and reported to SonarCloud on every CI run.
+
+---
+
+## Customizing the Template
+
+To adapt this template for a real microservice:
+
+1. **Rename the root package** from `com.flipfoundry.tutorial` to your organization's namespace
+2. **Replace the greeting domain** — remove or repurpose `GreetingController`, `GreetingEntity`, `GreetingRepository`, and their supporting types
+3. **Update `application.yml`** with your service name, port, and datasource coordinates
+4. **Add your business logic** following the existing layer conventions (see [Package Structure](./docs/PACKAGE-STRUCTURE.md))
+5. **Enable or disable Kafka** via the `kafka` Spring profile — the producer module is profile-gated and can be excluded entirely if not needed
+6. **Update the OpenAPI config** in `config/openapi/OpenApiProps.java` with your API title and description
+
+---
+
+## Why This Stack?
+
+| Technology | Reason |
+|---|---|
+| **Spring WebFlux** | Non-blocking I/O handles high concurrency on a small thread pool — correct default for I/O-bound microservices |
+| **Reactor Kafka** | Integrates natively with the reactive pipeline; no thread-blocking on publish |
+| **Protobuf** | Schema-enforced, compact event payloads; Kafka consumer teams get a versioned contract |
+| **OpenTelemetry** | Vendor-neutral auto-instrumentation; traces flow through to Tempo without code changes |
+| **Jib** | Reproducible, daemon-free container builds from Gradle; no `Dockerfile` maintenance |
+| **SonarCloud + JaCoCo** | Quality gate enforced in CI; prevents coverage regressions from reaching `master` |
+
+---
+
 ## Workflows
 
 | Workflow | Trigger | Output |
@@ -83,7 +216,7 @@ make bootrun
 
 ## 12-Factor App Compliance
 
-This template is designed to satisfy all twelve factors from [The Twelve-Factor App](https://12factor.net/) methodology, making it deployable on any cloud platform, Kubernetes cluster, or CI/CD pipeline without modification.
+This template satisfies all twelve factors from [The Twelve-Factor App](https://12factor.net/) methodology, making it deployable on any cloud platform, Kubernetes cluster, or CI/CD pipeline without modification.
 
 | Factor | Implementation |
 |---|---|
@@ -96,7 +229,7 @@ This template is designed to satisfy all twelve factors from [The Twelve-Factor 
 | **VII. Port Binding** | Spring Boot's embedded Netty exports HTTP on a configurable port (`SERVER_PORT`, default `8700`). The Actuator management port (`9001`) is separately bound. No external container or application server is required. |
 | **VIII. Concurrency** | The reactive (WebFlux) model achieves high concurrency on a minimal thread pool. Horizontal scaling is done by adding container replicas behind a load balancer — the application requires no changes to scale out. |
 | **IX. Disposability** | `server.shutdown=graceful` drains in-flight requests before the process exits. Jib's layered image format enables fast cold-starts. Reactive non-blocking I/O eliminates thread-per-request warm-up overhead. |
-| **X. Dev/Prod Parity** | `docker-compose.yml` runs the full observability stack (Kafka, Prometheus, Grafana, Loki, Tempo) locally with the same Docker image used in production. Spring profiles prevent environment-specific code paths from diverging. |
+| **X. Dev/Prod Parity** | `compose.yaml` runs the full observability stack (Kafka, Prometheus, Grafana, Loki, Tempo) locally with the same Docker image used in production. Spring profiles prevent environment-specific code paths from diverging. |
 | **XI. Logs** | Logback emits all output to `stdout` as structured text with UTC timestamps and MDC `traceId` correlation. No log files are written to disk. Grafana Alloy ships the log stream to Loki for aggregation, querying, and alerting. |
 | **XII. Admin Processes** | Administrative and operational tasks are surfaced through Spring Boot Actuator (`/actuator/health`, `/actuator/prometheus`, `/actuator/info`, `/actuator/metrics`) on a dedicated management port, isolating operational traffic from application traffic. |
 
